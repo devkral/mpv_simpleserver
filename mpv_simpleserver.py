@@ -8,7 +8,19 @@ import sys
 # path is replaced by filecontent
 sites = {"index": "data/index.tpl"} #, "success": "data/success.tpl","success": "data/error.tpl"}
 
-maxscreen = 30
+maxscreen = None
+
+if maxscreen is None:
+    maxscreen = 0
+    if os.uname().sysname == "Linux":
+        for elem in os.listdir("/sys/class/drm/"):
+            if os.path.exists(os.path.join("/sys/class/drm/", elem, "status")):
+                maxscreen += 1
+        if maxscreen>0:
+            maxscreen-=1 # begins with 0
+    print("Screens detected:", maxscreen+1)
+
+
 basedir = os.path.dirname(__file__)
 
 playdir = os.path.join(basedir, "mpv_files")
@@ -36,7 +48,7 @@ def index():
     listscreens = []
     for screennu, val in cur_mpvprocess.items():
         if val[0].poll() is not None:
-            #del self.cur_mpvprocess[screennu]
+            #del cur_mpvprocess[screennu]
             continue
         
         listscreens.append((screennu, val[1]))
@@ -64,8 +76,11 @@ def start_mpv(screen):
         abort(400,"Error: no file specified")
         return
     #if os.path TODO: mpv can PLAY everything on the local filesystem, fix
-    cur_mpvprocess[screen] = [Popen(["/usr/bin/mpv", "--fs" , "--fs-screen", str(screen), turl], cwd=playdir), turl]
-    #threading.Thread(target=self.cease, args=[screen])
+    if maxscreen==0:
+        calledargs = ["/usr/bin/mpv", "--fs", turl]
+    else:
+        calledargs = ["/usr/bin/mpv", "--fs-screen", str(screen), turl]
+    cur_mpvprocess[screen] = [Popen(calledargs, cwd=playdir), turl]
     if cur_mpvprocess[screen][0].poll() is not None:
         abort(500,"playing file failed")
     else:
@@ -85,12 +100,10 @@ def stop_mpv(screen):
         return
     if cur_mpvprocess.get(screen) and cur_mpvprocess.get(screen)[0].poll() is None:
         cur_mpvprocess.get(screen)[0].terminate()
-        #del self.cur_mpvprocess[screen]
     else:
         abort(400,"Error: screen not exist")
         return
     redirect("/")
-
 
 
 run(host='', port=8080)
