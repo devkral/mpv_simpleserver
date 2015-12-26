@@ -24,26 +24,59 @@ if maxscreen is None:
 basedir = os.path.dirname(__file__)
 
 playdir = os.path.join(basedir, "mpv_files")
+
+playdir = os.path.realpath(playdir)
+
 if len(sys.argv)>1:
     if os.path.isdir(sys.argv[1]):
         playdir = sys.argv[1]
     else:
-        print("Usage: {} [existing director]".format(sys.argv[0]))
+        print("Usage: {} [existing directory]".format(sys.argv[0]))
         sys.exit(1)
-    
+
 
 cur_mpvprocess = {}
 for _name, _path in sites.items():
     with open(os.path.join(basedir, _path), "r") as reado:
         sites[_name] = reado.read()
 
+def convert_path(path):
+    if "file://" in path[:7]:
+        path = path[7:]
+    if "://" not in path:
+        if os.sep != "/":
+            path = path.replace("/", "\\")
+        path = path.strip("./")
+        path = os.path.join(playdir, path)
+        
+    return path
+
+@route(path='/index/', method="GET")
+def redwrong_index():
+    redirect("/index")
+
 @route(path='/index', method="GET")
 @route(path='/', method="GET")
-def index():
-    if os.path.isdir(playdir):
-        pllist = os.listdir(playdir)
-    else:
-        pllist = []
+def index_a():
+    return index_intern("")
+
+@route(path='/index/<path>', method="GET")
+def index_b(path):
+    if os.sep != "/":
+        path = path.replace("/", "\\")
+    return index_intern(path)
+    
+def index_intern(path):
+    path = path.strip("./\\")
+    path = os.path.join(playdir, path)
+    pllist = []
+    if os.path.isdir(path):
+        for _file in os.listdir(path):
+            _fullfile = os.path.join(path, _file)
+            if os.path.isdir(_fullfile):
+                pllist.append((_file, "dir", os.path.relpath(_fullfile, playdir)))
+            elif os.path.isfile(_fullfile):
+                pllist.append((_file, "file", os.path.relpath(_fullfile, playdir)))
         
     listscreens = []
     for screennu, val in cur_mpvprocess.items():
@@ -75,7 +108,8 @@ def start_mpv(screen):
     if turl=="":
         abort(400,"Error: no file specified")
         return
-    #if os.path TODO: mpv can PLAY everything on the local filesystem, fix
+    # should fix arbitary reads
+    turl = convert_path(turl)
     if maxscreen==0:
         calledargs = ["/usr/bin/mpv", "--fs", turl]
     else:
@@ -100,9 +134,10 @@ def stop_mpv(screen):
         return
     if cur_mpvprocess.get(screen) and cur_mpvprocess.get(screen)[0].poll() is None:
         cur_mpvprocess.get(screen)[0].terminate()
-    else:
-        abort(400,"Error: screen not exist")
-        return
+    #else:
+        #redirect("/") #Error: screen not exist")
+        #abort(400,"Error: screen not exist")
+        #return
     redirect("/")
 
 
