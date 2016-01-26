@@ -13,11 +13,15 @@ maxscreen = None
 if maxscreen is None:
     maxscreen = 0
     if os.uname().sysname == "Linux":
-        for elem in os.listdir("/sys/class/drm/"):
-            if os.path.exists(os.path.join("/sys/class/drm/", elem, "status")):
-                maxscreen += 1
+        if os.path.isdir("/sys/class/drm/"):
+            for elem in os.listdir("/sys/class/drm/"):
+                if os.path.exists(os.path.join("/sys/class/drm/", elem, "status")):
+                    maxscreen += 1
+        
+        
         if maxscreen>0:
             maxscreen-=1 # begins with 0
+        
     print("Screens detected:", maxscreen+1)
 
 
