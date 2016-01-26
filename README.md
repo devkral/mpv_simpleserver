@@ -11,5 +11,5 @@ it is possible to specify an other directory by calling:
 mpv_simpleserver.py /hmeeee/wanteddirectory
 
 
-be aware that an potential attacker can play any local (and remote) file the user has access to
+be aware that an potential attacker can play any local file in playdir and any remote file
 
