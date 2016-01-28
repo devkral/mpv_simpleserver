@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from bottle import route, run, template, request, redirect,abort
+from bottle import route, run, template, request, redirect, abort, debug
 import os
 from subprocess import Popen
 import sys
@@ -86,7 +86,7 @@ def redwrong_index():
 def index_a():
     return index_intern("")
 
-@route(path='/index/<path>', method="GET")
+@route(path='/index/<path:path>', method="GET")
 def index_b(path):
     if os.sep != "/":
         path = path.replace("/", "\\")
@@ -179,5 +179,5 @@ def stop_mpv(screen):
         #return
     redirect("/")
 
-
+debug(True)
 run(host='', port=8080)

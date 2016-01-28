@@ -43,7 +43,7 @@
             <a href="#" onclick='document.getElementById("fileinpd").value="{{realfile}}"' style="color:blue">{{playfile}}</a>
         %end
         %if playaction == "dir":
-            <a href="index/{{realfile}}" style="color:black">{{playfile}}</a>
+            <a href="/index/{{realfile}}" style="color:black">{{playfile}}</a>
         %end
     </td></tr>
 %end
