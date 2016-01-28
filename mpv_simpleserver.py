@@ -7,16 +7,29 @@ import sys
 
 # path is replaced by filecontent
 sites = {"index": "data/index.tpl"} #, "success": "data/success.tpl","success": "data/error.tpl"}
+allowed_protocols = ["file", "http", "https", "ftp", "smb", "mf"]
+novideo = False
+
+parameters = []
+parameters_fallback = []
+
 
 maxscreen = None
 
-if maxscreen is None:
+if maxscreen is None and novideo==False:
     maxscreen = 0
     if os.uname().sysname == "Linux":
         if os.path.isdir("/sys/class/drm/"):
             for elem in os.listdir("/sys/class/drm/"):
-                if os.path.exists(os.path.join("/sys/class/drm/", elem, "status")):
-                    maxscreen += 1
+                _statusdrm = os.path.join("/sys/class/drm/", elem, "status")
+                if os.path.exists(_statusdrm) == False:
+                    continue
+                #wasread = ""
+                #with open(_statusdrm, "r") as readob:
+                #    wasread = readob.read().strip().rstrip()
+                #if wasread != "connected":
+                #    continue
+                maxscreen += 1
         
         
         if maxscreen>0:
@@ -24,6 +37,11 @@ if maxscreen is None:
         
     print("Screens detected:", maxscreen+1)
 
+
+if novideo:
+    parameters.append("--no-video")
+    parameters.append("--vo=null")
+    maxscreen = 0
 
 basedir = os.path.dirname(__file__)
 
@@ -45,9 +63,11 @@ for _name, _path in sites.items():
         sites[_name] = reado.read()
 
 def convert_path(path):
+    if "://" in path[:10] and path.split("://", 1)[0] not in allowed_protocols:
+        return None
     if "file://" in path[:7]:
         path = path[7:]
-    if "://" not in path:
+    if "://" not in path: # if is file
         if os.sep != "/":
             path = path.replace("/", "\\")
         path = path.strip("./")
@@ -101,7 +121,7 @@ def start_a(screen):
 def start_b():
     start_mpv(int(request.forms.get('screenid')))
         
-def start_mpv(screen):
+def start_mpv(screen, use_fallback=False):
     if screen>maxscreen or screen<0:
         abort(400,"Error: screenid invalid")
         return
@@ -114,13 +134,26 @@ def start_mpv(screen):
         return
     # should fix arbitary reads
     turl = convert_path(turl)
-    if maxscreen==0:
-        calledargs = ["/usr/bin/mpv", "--fs", turl]
+    if turl is None:
+        abort(400,"forbidden pathtype")
+        return
+    calledargs = ["/usr/bin/mpv"]
+    if use_fallback:
+        calledargs += parameters_fallback
     else:
-        calledargs = ["/usr/bin/mpv", "--fs-screen", str(screen), turl]
+        calledargs += parameters
+    if novideo == False:
+        calledargs += ["--fs"]
+        if maxscreen>0:
+            calledargs += ["--fs-screen", "{}".format(screen)]
+    
+    calledargs.append(turl)
     cur_mpvprocess[screen] = [Popen(calledargs, cwd=playdir), turl]
     if cur_mpvprocess[screen][0].poll() is not None:
-        abort(500,"playing file failed")
+        if use_fallback:
+            abort(500,"playing file failed")
+        else:
+            start_mpv(screen, use_fallback=True)
     else:
         redirect("/")
 
