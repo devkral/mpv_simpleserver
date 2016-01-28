@@ -9,12 +9,17 @@ import sys
 sites = {"index": "data/index.tpl"} #, "success": "data/success.tpl","success": "data/error.tpl"}
 allowed_protocols = ["file", "http", "https", "ftp", "smb", "mf"]
 novideo = False
+maxscreen = None
 
 parameters = []
 parameters_fallback = []
 
 
-maxscreen = None
+
+if sys.platform in ["linux", "freebsd"]:
+    if os.getenv("DISPLAY") is None and os.getenv("WAYLAND_DISPLAY") is None:
+        print("novideo activated because no display variable was found; use DISPLAY=:0")
+        novideo = True
 
 if maxscreen is None and novideo==False:
     maxscreen = 0
@@ -30,24 +35,21 @@ if maxscreen is None and novideo==False:
                 #if wasread != "connected":
                 #    continue
                 maxscreen += 1
-        
-        
-        if maxscreen>0:
-            maxscreen-=1 # begins with 0
-        
+    if maxscreen>0:
+        maxscreen-=1 # begins with 0
     print("Screens detected:", maxscreen+1)
+
+
+
+basedir = os.path.dirname(__file__)
+playdir = os.path.join(basedir, "mpv_files")
+playdir = os.path.realpath(playdir)
 
 
 if novideo:
     parameters.append("--no-video")
-    parameters.append("--vo=null")
+    parameters_fallback.append("--vo=null")
     maxscreen = 0
-
-basedir = os.path.dirname(__file__)
-
-playdir = os.path.join(basedir, "mpv_files")
-
-playdir = os.path.realpath(playdir)
 
 if len(sys.argv)>1:
     if os.path.isdir(sys.argv[1]):
