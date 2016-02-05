@@ -132,7 +132,7 @@ def start_mpv(screen, use_fallback=False):
         cur_mpvprocess.get(screen)[0].wait()
     turl = request.forms.get('fileinp')
     if turl=="":
-        abort(400,"Error: no file specified")
+        abort(400,"Error: no stream/file specified")
         return
     # should fix arbitary reads
     turl = convert_path(turl)
