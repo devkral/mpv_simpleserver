@@ -17,17 +17,17 @@ parameters_fallback = []
 
 
 if sys.platform in ["linux", "freebsd"]:
-    if os.getenv("DISPLAY") is None and os.getenv("WAYLAND_DISPLAY") is None:
+    if not novideo and os.getenv("DISPLAY") is None and os.getenv("WAYLAND_DISPLAY") is None:
         print("novideo activated because no display variable was found; use DISPLAY=:0")
         novideo = True
 
-if maxscreen is None and novideo==False:
+if maxscreen is None and not novideo:
     maxscreen = 0
     if os.uname().sysname == "Linux":
         if os.path.isdir("/sys/class/drm/"):
             for elem in os.listdir("/sys/class/drm/"):
                 _statusdrm = os.path.join("/sys/class/drm/", elem, "status")
-                if os.path.exists(_statusdrm) == False:
+                if not os.path.exists(_statusdrm):
                     continue
                 #wasread = ""
                 #with open(_statusdrm, "r") as readob:
