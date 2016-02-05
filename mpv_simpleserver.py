@@ -74,7 +74,7 @@ def convert_path(path):
             path = path.replace("/", "\\")
         path = path.strip("./")
         path = os.path.join(playdir, path)
-        
+        return path
     return path
 
 @route(path='/index/', method="GET")
@@ -135,8 +135,8 @@ def start_mpv(screen, use_fallback=False):
         abort(400,"Error: no stream/file specified")
         return
     # should fix arbitary reads
-    turl = convert_path(turl)
-    if turl is None:
+    newurl = convert_path(turl)
+    if newurl is None:
         abort(400,"forbidden pathtype")
         return
     calledargs = ["/usr/bin/mpv"]
@@ -149,7 +149,7 @@ def start_mpv(screen, use_fallback=False):
         if maxscreen>0:
             calledargs += ["--fs-screen", "{}".format(screen)]
     
-    calledargs.append(turl)
+    calledargs.append(newurl)
     cur_mpvprocess[screen] = [Popen(calledargs, cwd=playdir), turl]
     if cur_mpvprocess[screen][0].poll() is not None:
         if use_fallback:
