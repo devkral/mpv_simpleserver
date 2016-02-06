@@ -8,6 +8,7 @@ import sys
 # path is replaced by filecontent
 sites = {"index": "data/index.tpl"} #, "success": "data/success.tpl","success": "data/error.tpl"}
 allowed_protocols = ["file", "http", "https", "ftp", "smb", "mf"]
+background_volume = 50
 novideo = False
 maxscreen = None
 
@@ -35,8 +36,8 @@ if maxscreen is None and not novideo:
                 #if wasread != "connected":
                 #    continue
                 maxscreen += 1
-    if maxscreen>0:
-        maxscreen-=1 # begins with 0
+    if maxscreen > 0:
+        maxscreen -= 1 # begins with 0
     print("Screens detected:", maxscreen+1)
 
 
@@ -130,7 +131,7 @@ def start_mpv(screen, use_fallback=False):
     if cur_mpvprocess.get(screen) and cur_mpvprocess.get(screen)[0].poll() is None:
         cur_mpvprocess.get(screen)[0].terminate()
         cur_mpvprocess.get(screen)[0].wait()
-    turl = request.forms.get('fileinp')
+    turl = request.forms.get('stream_path')
     if turl=="":
         abort(400,"Error: no stream/file specified")
         return
@@ -144,10 +145,14 @@ def start_mpv(screen, use_fallback=False):
         calledargs += parameters_fallback
     else:
         calledargs += parameters
-    if novideo == False:
+    if not novideo:
         calledargs += ["--fs"]
         if maxscreen>0:
             calledargs += ["--fs-screen", "{}".format(screen)]
+    if request.forms.get('background', False):
+        calledargs += ["--softvol=yes", "--volume={}".format(background_volume)]
+    #else:
+    #    calledargs += ["--volume=100"]
     
     calledargs.append(newurl)
     cur_mpvprocess[screen] = [Popen(calledargs, cwd=playdir), turl]
