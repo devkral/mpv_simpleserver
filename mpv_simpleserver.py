@@ -8,7 +8,7 @@ import sys
 # path is replaced by filecontent
 sites = {"index": "data/index.tpl"} #, "success": "data/success.tpl","success": "data/error.tpl"}
 allowed_protocols = ["file", "http", "https", "ftp", "smb", "mf"]
-background_volume = 50
+background_volume = 70
 novideo = False
 maxscreen = None
 
