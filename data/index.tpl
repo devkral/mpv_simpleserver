@@ -5,7 +5,13 @@
 <table style="border-collapse: collapse;"><tr>
 <td>
 <form method="post">
-    Screen: <input name="screenid" id="screenidid" type="number" value="0" max="{{maxscreen}}" min="0" placeholder="<screen>"/>
+%if hidescreens == True:
+<div hidden>
+%end
+    Screen: <input name="screenid" id="screenidid" type="number" value="0" max="{{maxscreens}}" min="0" placeholder="<screen>"/>
+%if hidescreens:
+</div>
+%end
     <input value="Stop" type="submit" id="mpv_stop" formaction="/stop"/>
     <br>
     Background (quieter) <input name="background" id="backgroundid" type="checkbox"/>

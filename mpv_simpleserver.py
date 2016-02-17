@@ -10,7 +10,7 @@ sites = {"index": "data/index.tpl"} #, "success": "data/success.tpl","success": 
 allowed_protocols = ["file", "http", "https", "ftp", "smb", "mf"]
 background_volume = 70
 novideo = False
-maxscreen = None
+maxscreens = -1
 
 parameters = []
 parameters_fallback = []
@@ -22,35 +22,39 @@ if sys.platform in ["linux", "freebsd"]:
         print("novideo activated because no display variable was found; use DISPLAY=:0")
         novideo = True
 
-if maxscreen is None and not novideo:
-    maxscreen = 0
-    if os.uname().sysname == "Linux":
-        if os.path.isdir("/sys/class/drm/"):
-            for elem in os.listdir("/sys/class/drm/"):
-                _statusdrm = os.path.join("/sys/class/drm/", elem, "status")
-                if not os.path.exists(_statusdrm):
-                    continue
-                #wasread = ""
-                #with open(_statusdrm, "r") as readob:
-                #    wasread = readob.read().strip().rstrip()
-                #if wasread != "connected":
-                #    continue
-                maxscreen += 1
-    if maxscreen > 0:
-        maxscreen -= 1 # begins with 0
-    print("Screens detected:", maxscreen+1)
+def count_screens():
+    if not novideo:
+        screens = 0
+        if os.uname().sysname == "Linux":
+            if os.path.isdir("/sys/class/drm/"):
+                for elem in os.listdir("/sys/class/drm/"):
+                    _statusdrm = os.path.join("/sys/class/drm/", elem, "status")
+                    if not os.path.exists(_statusdrm):
+                        continue
+                    #wasread = ""
+                    with open(_statusdrm, "r") as readob:
+                        wasread = readob.read().strip().rstrip()
+                    if wasread != "connected":
+                        continue
+                    screens += 1
+        else: # set to maxscreens if screencounting not supported
+            screens = max(0, maxscreens)
+        #if maxscreen > 0:
+        #    maxscreen -= 1 # begins with 0
+        #print("Screens detected:", maxscreen+1)
+        if maxscreens > 0:
+            return min(maxscreens, screens)
+        else:
+            return screens
+    else:
+        return 0
 
-
+#print("Screens detected:", count_screens())
 
 basedir = os.path.dirname(__file__)
 playdir = os.path.join(basedir, "mpv_files")
 playdir = os.path.realpath(playdir)
 
-
-if novideo:
-    parameters.append("--no-video")
-    parameters_fallback.append("--vo=null")
-    maxscreen = 0
 
 if len(sys.argv)>1:
     if os.path.isdir(sys.argv[1]):
@@ -58,7 +62,9 @@ if len(sys.argv)>1:
     else:
         print("Usage: {} [existing directory]".format(sys.argv[0]))
         sys.exit(1)
-
+else:
+    # for relative path security ensure playdir
+    os.makedirs(playdir, exist_ok=True)
 
 cur_mpvprocess = {}
 for _name, _path in sites.items():
@@ -110,9 +116,10 @@ def index_intern(path):
         if val[0].poll() is not None:
             #del cur_mpvprocess[screennu]
             continue
-        
         listscreens.append((screennu, val[1]))
-    return template(sites["index"], playfiles=pllist, maxscreen=maxscreen,playingscreens=listscreens)
+    screens = count_screens()
+    hidescreens = screens<=1
+    return template(sites["index"], playfiles=pllist, hidescreens=hidescreens, maxscreens=screens-1, playingscreens=listscreens)
     
     
     
@@ -125,7 +132,7 @@ def start_b():
     start_mpv(int(request.forms.get('screenid')))
         
 def start_mpv(screen, use_fallback=False):
-    if screen>maxscreen or screen<0:
+    if screen>count_screens()-1 or screen < 0:
         abort(400,"Error: screenid invalid")
         return
     if cur_mpvprocess.get(screen) and cur_mpvprocess.get(screen)[0].poll() is None:
@@ -146,9 +153,14 @@ def start_mpv(screen, use_fallback=False):
     else:
         calledargs += parameters
     if not novideo:
+        screens = count_screens()
         calledargs += ["--fs"]
-        if maxscreen>0:
+        if screens > 1:
             calledargs += ["--fs-screen", "{}".format(screen)]
+    elif use_fallback:
+        calledargs.append("--vo=null")
+    else:
+        calledargs.append("--no-video")
     if request.forms.get('background', False):
         calledargs += ["--softvol=yes", "--volume={}".format(background_volume)]
     #else:
@@ -173,7 +185,7 @@ def stop(screen):
     stop_mpv(screen)
     
 def stop_mpv(screen):
-    if screen>maxscreen or screen<0:
+    if screen > max(0, maxscreens) or screen < 0:
         abort(400,"Error: screenid invalid")
         return
     if cur_mpvprocess.get(screen) and cur_mpvprocess.get(screen)[0].poll() is None:
