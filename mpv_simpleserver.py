@@ -119,7 +119,7 @@ def index_intern(path):
         listscreens.append((screennu, val[1]))
     screens = count_screens()
     hidescreens = screens<=1
-    return template(sites["index"], playfiles=pllist, hidescreens=hidescreens, maxscreens=screens-1, playingscreens=listscreens)
+    return template(sites["index"], playfiles=pllist, hidescreens=hidescreens, maxscreens=min(0,screens-1), playingscreens=listscreens)
     
     
     
