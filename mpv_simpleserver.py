@@ -55,6 +55,11 @@ basedir = os.path.dirname(__file__)
 playdir = os.path.join(basedir, "mpv_files")
 playdir = os.path.realpath(playdir)
 
+icon = b""
+iconpath = os.path.join(basedir, "favicon.ico")
+if os.path.exists(iconpath):
+    with open(iconpath, "rb") as icoob:
+        icon = icoob.read()
 
 if len(sys.argv)>1:
     if os.path.isdir(sys.argv[1]):
@@ -83,6 +88,10 @@ def convert_path(path):
         path = os.path.join(playdir, path)
         return path
     return path
+
+@route(path='/favicon.ico', method="GET")
+def return_icon():
+    return icon
 
 @route(path='/index/', method="GET")
 def redwrong_index():
