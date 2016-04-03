@@ -3,6 +3,7 @@
 from bottle import route, run, template, request, redirect, abort, debug
 import os
 from subprocess import Popen
+import threading
 import sys
 
 # path is replaced by filecontent
@@ -206,4 +207,4 @@ def stop_mpv(screen):
     redirect("/")
 
 debug(False)
-run(host='', port=8080)
+run(host='::', port=8080)
