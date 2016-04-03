@@ -12,6 +12,7 @@ allowed_protocols = ["file", "http", "https", "ftp", "smb", "mf"]
 background_volume = 70
 novideo = False
 maxscreens = -1
+debugmode = False
 
 parameters = []
 parameters_fallback = []
@@ -129,7 +130,7 @@ def index_intern(path):
         listscreens.append((screennu, val[1]))
     screens = count_screens()
     hidescreens = screens<=1
-    return template(sites["index"], playfiles=pllist, hidescreens=hidescreens, maxscreens=min(0,screens-1), playingscreens=listscreens)
+    return template(sites["index"], playfiles=pllist, hidescreens=hidescreens, maxscreens=max(0,screens-1), playingscreens=listscreens)
     
     
     
@@ -142,7 +143,7 @@ def start_b():
     start_mpv(int(request.forms.get('screenid')))
         
 def start_mpv(screen, use_fallback=False):
-    if screen>count_screens()-1 or screen < 0:
+    if screen>max(count_screens()-1, 0) or screen < 0:
         abort(400,"Error: screenid invalid")
         return
     if cur_mpvprocess.get(screen) and cur_mpvprocess.get(screen)[0].poll() is None:
@@ -162,8 +163,8 @@ def start_mpv(screen, use_fallback=False):
         calledargs += parameters_fallback
     else:
         calledargs += parameters
-    if not novideo:
-        screens = count_screens()
+    screens = count_screens()
+    if not novideo and screens > 0:
         calledargs += ["--fs"]
         if screens > 1:
             calledargs += ["--fs-screen", "{}".format(screen)]
@@ -206,5 +207,5 @@ def stop_mpv(screen):
         #return
     redirect("/")
 
-debug(False)
+debug(debugmode)
 run(host='::', port=8080)
