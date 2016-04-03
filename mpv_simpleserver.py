@@ -205,5 +205,5 @@ def stop_mpv(screen):
         #return
     redirect("/")
 
-debug(True)
+debug(False)
 run(host='', port=8080)
