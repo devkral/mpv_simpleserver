@@ -3,7 +3,7 @@
 from bottle import route, run, template, request, redirect, abort, debug
 import os
 from subprocess import Popen
-import threading
+import time
 import sys
 
 # path is replaced by filecontent
@@ -13,6 +13,9 @@ background_volume = 70
 novideo = False
 maxscreens = -1
 debugmode = False
+# time to wait before redirecting after start/stop.
+# elsewise old information are shown
+waittime = 1
 
 parameters = []
 parameters_fallback = []
@@ -179,13 +182,14 @@ def start_mpv(screen, use_fallback=False):
     
     calledargs.append(newurl)
     cur_mpvprocess[screen] = [Popen(calledargs, cwd=playdir), turl]
+    time.sleep(waittime)
     if cur_mpvprocess[screen][0].poll() is not None:
         if use_fallback:
-            abort(500,"playing file failed")
+            abort(500, "playing file failed")
         else:
             start_mpv(screen, use_fallback=True)
     else:
-        redirect("/")
+        redirect("/index")
 
 @route(path='/stop', method="POST")
 def stop_b():
@@ -205,7 +209,8 @@ def stop_mpv(screen):
         #redirect("/") #Error: screen not exist")
         #abort(400,"Error: screen not exist")
         #return
-    redirect("/")
+    time.sleep(waittime)
+    redirect("/index")
 
 debug(debugmode)
 run(host='::', port=8080)
