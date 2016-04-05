@@ -7,7 +7,7 @@ import time
 import sys
 
 # path is replaced by filecontent
-sites = {"index": "data/index.tpl"} #, "success": "data/success.tpl","success": "data/error.tpl"}
+pages = {"index": "data/index.tpl"} #, "success": "data/success.tpl","success": "data/error.tpl"}
 allowed_protocols = ["file", "http", "https", "ftp", "smb", "mf"]
 background_volume = 70
 novideo = False
@@ -60,11 +60,7 @@ basedir = os.path.dirname(__file__)
 playdir = os.path.join(basedir, "mpv_files")
 playdir = os.path.realpath(playdir)
 
-icon = b""
-iconpath = os.path.join(basedir, "favicon.ico")
-if os.path.exists(iconpath):
-    with open(iconpath, "rb") as icoob:
-        icon = icoob.read()
+
 
 if len(sys.argv)>1:
     if os.path.isdir(sys.argv[1]):
@@ -77,13 +73,20 @@ else:
     os.makedirs(playdir, exist_ok=True)
 
 cur_mpvprocess = {}
-for _name, _path in sites.items():
+
+for _name, _path in pages.items():
     with open(os.path.join(basedir, _path), "r") as reado:
-        sites[_name] = reado.read()
+        pages[_name] = reado.read()
+
+icon = b""
+iconpath = os.path.join(basedir, "data/favicon.ico")
+if os.path.exists(iconpath):
+    with open(iconpath, "rb") as icoob:
+        icon = icoob.read()
 
 def convert_path(path):
     if "://" in path[:10] and path.split("://", 1)[0] not in allowed_protocols:
-        return None
+        return None, False
     if "file://" in path[:7]:
         path = path[7:]
     if "://" not in path: # if is file
@@ -91,8 +94,8 @@ def convert_path(path):
             path = path.replace("/", "\\")
         path = path.strip("./")
         path = os.path.join(playdir, path)
-        return path
-    return path
+        return path, True
+    return path, False
 
 @route(path='/favicon.ico', method="GET")
 def return_icon():
@@ -113,11 +116,13 @@ def index_b(path):
         path = path.replace("/", "\\")
     return index_intern(path)
     
-def index_intern(path):
-    path = path.strip("./\\")
-    path = os.path.join(playdir, path)
+def index_intern(_path):
+    _path = _path.strip("./\\")
+    path = os.path.join(playdir, _path)
     pllist = []
     if os.path.isdir(path):
+        if _path != "":
+            pllist.append(("..", "dir", os.path.relpath(os.path.dirname(path), playdir)))
         for _file in os.listdir(path):
             _fullfile = os.path.join(path, _file)
             if os.path.isdir(_fullfile):
@@ -133,7 +138,7 @@ def index_intern(path):
         listscreens.append((screennu, val[1]))
     screens = count_screens()
     hidescreens = screens<=1
-    return template(sites["index"], playfiles=pllist, hidescreens=hidescreens, maxscreens=max(0,screens-1), playingscreens=listscreens)
+    return template(pages["index"], playfiles=pllist, hidescreens=hidescreens, maxscreens=max(0,screens-1), playingscreens=listscreens)
     
     
     
@@ -157,9 +162,12 @@ def start_mpv(screen, use_fallback=False):
         abort(400,"Error: no stream/file specified")
         return
     # should fix arbitary reads
-    newurl = convert_path(turl)
+    newurl, isfile = convert_path(turl)
     if newurl is None:
         abort(400,"forbidden pathtype")
+        return
+    if isfile and not os.path.isfile(newurl):
+        abort(400,"no such file")
         return
     calledargs = ["/usr/bin/mpv"]
     if use_fallback:
