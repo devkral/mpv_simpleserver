@@ -1,8 +1,13 @@
+<!DOCTYPE html>
 <html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Play Music</title>
+</head>
 <header>
-<h1>Mainpage</h1><br/>
+<h1>Play Music</h1><br/>
 </header>
-<table><tr>
+<table style="width:100%;"><tr>
 <td style="width:60%;">
 <form method="post">
 %if hidescreens == True:
@@ -20,7 +25,7 @@
     <br>
     Background (quieter) <input name="background" id="backgroundid" type="checkbox"/>
     <br>
-    Url/File: <input name="stream_path" id="stream_pathid" type="text" placeholder="<Url/File>" style="width:100%;min-width: 150px;"/>
+    Url/File: <input name="stream_path" id="stream_pathid" type="text" placeholder="<Url/File>" style="width:90%;min-width: 150px;"/>
     <input value="Play" type="submit" id="mpv_play" formaction="/start"/>
 </form>
 </td>

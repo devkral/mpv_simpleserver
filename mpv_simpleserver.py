@@ -17,8 +17,8 @@ debugmode = False
 # elsewise old information are shown
 waittime = 1
 
-parameters = []
-parameters_fallback = []
+parameters = ["--ytdl-raw-options=yes-playlist="]
+parameters_fallback = ["--ytdl-raw-options=yes-playlist="]
 
 
 
@@ -83,6 +83,12 @@ iconpath = os.path.join(basedir, "data/favicon.ico")
 if os.path.exists(iconpath):
     with open(iconpath, "rb") as icoob:
         icon = icoob.read()
+
+def check_isplaying_audio():
+    for elem in cur_mpvprocess.values():
+        if elem[0].poll() is not None and elem[2]:
+            return True
+    return False
 
 def convert_path(path):
     if "://" in path[:10] and path.split("://", 1)[0] not in allowed_protocols:
@@ -183,13 +189,19 @@ def start_mpv(screen, use_fallback=False):
         calledargs.append("--vo=null")
     else:
         calledargs.append("--no-video")
-    if request.forms.get('background', False):
-        calledargs += ["--softvol=yes", "--volume={}".format(background_volume)]
+    if check_isplaying_audio():
+        calledargs += ["--audio=no"]
+        hasaudio = False
+    else:
+        calledargs += ["--softvol=yes"]
+        hasaudio = True
+        if request.forms.get('background', False):
+            calledargs += ["--volume={}".format(background_volume)]
     #else:
     #    calledargs += ["--volume=100"]
     
     calledargs.append(newurl)
-    cur_mpvprocess[screen] = [Popen(calledargs, cwd=playdir), turl]
+    cur_mpvprocess[screen] = [Popen(calledargs, cwd=playdir), turl, hasaudio]
     time.sleep(waittime)
     if cur_mpvprocess[screen][0].poll() is not None:
         if use_fallback:
