@@ -25,7 +25,7 @@
     <br>
     Background (quieter) <input name="background" id="backgroundid" type="checkbox"/>
     <br>
-    Url/File: <input name="stream_path" id="stream_pathid" type="text" placeholder="<Url/File>" style="width:90%;min-width: 150px;"/>
+    Url/File: <input name="stream_path" id="stream_pathid" type="text" placeholder="<Url/File>" value="{{currentfile}}" style="width:90%;min-width: 150px;"/>
     <input value="Play" type="submit" id="mpv_play" formaction="/start"/>
 </form>
 </td>
@@ -42,7 +42,11 @@
 %else:
     <tr><td>No played files</td></tr>
 %end
+%if currentdir=="":
 <tr><th style="border-bottom: 1px solid; border-top: 1px solid;">Files:</th></tr>
+%else:
+<tr><th style="border-bottom: 1px solid; border-top: 1px solid;">Files in <a href='/index/{{currentdir}}'>{{currentdir}}</a>:</th></tr>
+%end
 %if len(playfiles)>0:
 %for playfile, playaction, realfile in playfiles:
     <tr><td>
@@ -54,8 +58,9 @@
         %end
     </td></tr>
 %end
-%else:
-    <tr><td>empty</td></tr>
+%end
+%if len(playfiles)==0 or (len(playfiles)==1 and currentdir!=""):
+    <tr><td><b>empty</b></td></tr>
 %end
 
 </table>

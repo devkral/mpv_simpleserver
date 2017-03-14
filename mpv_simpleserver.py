@@ -5,7 +5,10 @@ import os
 from subprocess import Popen
 import time
 import sys
+if os.sep != "/":
+    import functools
 
+pathtompv = "/usr/bin/mpv"
 # path is replaced by filecontent
 pages = {"index": "data/index.tpl"} #, "success": "data/success.tpl","success": "data/error.tpl"}
 allowed_protocols = ["file", "http", "https", "ftp", "smb", "mf"]
@@ -27,6 +30,22 @@ if sys.platform in ["linux", "freebsd"]:
         print("novideo activated because no display variable was found; use DISPLAY=:0")
         novideo = True
 
+if os.sep != "/":
+    @functools.lru_cache(maxsize=512)
+    def converttopath(path):
+        return path.replace(os.sep, "/")
+else:
+    def converttopath(path):
+        return path
+
+if os.sep != "/":
+    @functools.lru_cache(maxsize=512)
+    def backconvert(path):
+        return path.replace(os.sep, "/")
+else:
+    def backconvert(path):
+        return path
+
 def count_screens():
     if not novideo:
         screens = 0
@@ -38,7 +57,7 @@ def count_screens():
                         continue
                     #wasread = ""
                     with open(_statusdrm, "r") as readob:
-                        wasread = readob.read().strip().rstrip()
+                        wasread = readob.read().strip()
                     if wasread != "connected":
                         continue
                     screens += 1
@@ -96,9 +115,8 @@ def convert_path(path):
     if "file://" in path[:7]:
         path = path[7:]
     if "://" not in path: # if is file
-        if os.sep != "/":
-            path = path.replace("/", "\\")
-        path = path.strip("./")
+        path = converttopath(path)
+        path = path.lstrip("./")
         path = os.path.join(playdir, path)
         return path, True
     return path, False
@@ -114,28 +132,40 @@ def redwrong_index():
 @route(path='/index', method="GET")
 @route(path='/', method="GET")
 def index_a():
-    return index_intern("")
+    ret = index_intern("")
+    if ret:
+        return ret
+    abort(500, "Magic smoke?")
+
 
 @route(path='/index/<path:path>', method="GET")
 def index_b(path):
-    if os.sep != "/":
-        path = path.replace("/", "\\")
-    return index_intern(path)
-    
-def index_intern(_path):
-    _path = _path.strip("./\\")
-    path = os.path.join(playdir, _path)
+    path = converttopath(path)
+    ret = index_intern(path)
+    if ret:
+        return ret
+    abort(404, "directory not found")
+
+def index_intern(relpath):
+    relpath = relpath.lstrip("./\\")
+    path = os.path.join(playdir, relpath)
     pllist = []
+    currentfile = ""
+    if not os.path.isdir(path) and os.path.isfile(path):
+        currentfile = relpath
+        relpath = os.path.dirname(relpath)
+        path = os.path.dirname(path)
     if os.path.isdir(path):
-        if _path != "":
-            pllist.append(("..", "dir", os.path.relpath(os.path.dirname(path), playdir)))
+        if relpath != "":
+            pllist.append(("..", "dir", backconvert(relpath)))
         for _file in os.listdir(path):
             _fullfile = os.path.join(path, _file)
             if os.path.isdir(_fullfile):
-                pllist.append((_file, "dir", os.path.relpath(_fullfile, playdir)))
+                pllist.append((_file, "dir", backconvert(os.path.relpath(_fullfile, playdir))))
             elif os.path.isfile(_fullfile):
-                pllist.append((_file, "file", os.path.relpath(_fullfile, playdir)))
-        
+                pllist.append((_file, "file", backconvert(os.path.relpath(_fullfile, playdir))))
+    else:
+        return None
     listscreens = []
     for screennu, val in cur_mpvprocess.items():
         if val[0].poll() is not None:
@@ -144,10 +174,12 @@ def index_intern(_path):
         listscreens.append((screennu, val[1]))
     screens = count_screens()
     hidescreens = screens<=1
-    return template(pages["index"], playfiles=pllist, hidescreens=hidescreens, maxscreens=max(0,screens-1), playingscreens=listscreens)
-    
-    
-    
+    print(backconvert(relpath))
+    return template(pages["index"], currentdir=backconvert(relpath), \
+                    currentfile=backconvert(currentfile), \
+                    playfiles=pllist, hidescreens=hidescreens, \
+                    maxscreens=max(0,screens-1), playingscreens=listscreens)
+
 @route(path='/start/<screen:int>', method="POST")
 def start_a(screen):
     start_mpv(screen)
@@ -175,7 +207,7 @@ def start_mpv(screen, use_fallback=False):
     if isfile and not os.path.isfile(newurl):
         abort(400,"no such file")
         return
-    calledargs = ["/usr/bin/mpv"]
+    calledargs = [pathtompv]
     if use_fallback:
         calledargs += parameters_fallback
     else:
