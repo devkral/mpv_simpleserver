@@ -13,6 +13,7 @@ pathtompv = "/usr/bin/mpv"
 pages = {"index": "data/index.tpl"} #, "success": "data/success.tpl","success": "data/error.tpl"}
 allowed_protocols = ["file", "http", "https", "ftp", "smb", "mf"]
 background_volume = int(os.environ.get("BACKGROUND_VOLUME", "70"))
+prefquality = os.environ.get("QUALITY", "192")
 novideo = "NOVIDEO" in os.environ
 debugmode = "DEBUG" in os.environ
 maxscreens = -1
@@ -20,8 +21,8 @@ maxscreens = -1
 # elsewise old information are shown
 waittime = 1
 
-parameters = ["--ytdl-raw-options=yes-playlist="]
-parameters_fallback = ["--ytdl-raw-options=yes-playlist="]
+parameters = ["--ytdl-format=worstaudio[abr>={quality}]/bestaudio/worst[abr>={quality}]/best".format(quality=prefquality)]
+parameters_fallback = ["--ytdl-format=worstaudio[abr>={quality}]/bestaudio/worst[abr>={quality}]/best".format(quality=prefquality)]
 
 
 if not debugmode:
