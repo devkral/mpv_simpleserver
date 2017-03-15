@@ -204,6 +204,7 @@ def start_mpv(screen, use_fallback=False):
     if cur_mpvprocess.get(screen) and cur_mpvprocess.get(screen)[0].poll() is None:
         cur_mpvprocess.get(screen)[0].terminate()
         cur_mpvprocess.get(screen)[0].wait()
+    # FIXME: no utf-8 support
     turl = request.forms.get('stream_path')
     if turl=="":
         abort(400,"Error: no stream/file specified")
