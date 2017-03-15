@@ -12,10 +12,10 @@ pathtompv = "/usr/bin/mpv"
 # path is replaced by filecontent
 pages = {"index": "data/index.tpl"} #, "success": "data/success.tpl","success": "data/error.tpl"}
 allowed_protocols = ["file", "http", "https", "ftp", "smb", "mf"]
-background_volume = 70
-novideo = False
+background_volume = int(os.environ.get("BACKGROUND_VOLUME", "70"))
+novideo = "NOVIDEO" in os.environ
+debugmode = "DEBUG" in os.environ
 maxscreens = -1
-debugmode = False
 # time to wait before redirecting after start/stop.
 # elsewise old information are shown
 waittime = 1
@@ -24,6 +24,9 @@ parameters = ["--ytdl-raw-options=yes-playlist="]
 parameters_fallback = ["--ytdl-raw-options=yes-playlist="]
 
 
+if not debugmode:
+    parameters += ["--no-terminal", "--really-quiet"]
+    parameters_fallback += ["--no-terminal", "--really-quiet"]
 
 if sys.platform in ["linux", "freebsd"]:
     if not novideo and os.getenv("DISPLAY") is None and os.getenv("WAYLAND_DISPLAY") is None:
@@ -225,7 +228,7 @@ def start_mpv(screen, use_fallback=False):
         calledargs += ["--audio=no"]
         hasaudio = False
     else:
-        calledargs += ["--softvol=yes"]
+        #calledargs += ["--softvol=yes"]
         hasaudio = True
         if request.forms.get('background', False):
             calledargs += ["--volume={}".format(background_volume)]
@@ -265,4 +268,7 @@ def stop_mpv(screen):
     redirect("/index")
 
 debug(debugmode)
-run(host='::', port=8080)
+if debugmode:
+    run(host='::', port=8080)
+else:
+    run(host='::', port=8080, quiet=True)
