@@ -21,9 +21,11 @@ maxscreens = -1
 # elsewise old information are shown
 waittime = 1
 
-parameters = ["--ytdl-format=worstaudio[abr>={quality}]/bestaudio/worst[abr>={quality}]/best".format(quality=prefquality)]
-parameters_fallback = ["--ytdl-format=worstaudio[abr>={quality}]/bestaudio/worst[abr>={quality}]/best".format(quality=prefquality)]
+parameters = []
+parameters_fallback = []
 
+parameters += ["--ytdl-format=worstaudio[abr>={quality}]/bestaudio/worst[abr>={quality}]/best".format(quality=prefquality)]
+parameters_fallback += ["--ytdl-format=worstaudio[abr>={quality}]/bestaudio/worst[abr>={quality}]/best".format(quality=prefquality)]
 
 if not debugmode:
     parameters += ["--no-terminal", "--really-quiet"]
@@ -161,7 +163,10 @@ def index_intern(relpath):
         path = os.path.dirname(path)
     if os.path.isdir(path):
         if relpath != "":
-            pllist.append(("..", "dir", backconvert(relpath)))
+            if currentfile != "":
+                pllist.append(("..", "dir", backconvert(relpath)))
+            else:
+                pllist.append(("..", "dir", backconvert(os.path.dirname(relpath))))
         for _file in os.listdir(path):
             _fullfile = os.path.join(path, _file)
             if os.path.isdir(_fullfile):
