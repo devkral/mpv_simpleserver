@@ -13,7 +13,8 @@ pathtompv = "/usr/bin/mpv"
 pages = {"index": "data/index.tpl"} #, "success": "data/success.tpl","success": "data/error.tpl"}
 allowed_protocols = ["file", "http", "https", "ftp", "smb", "mf"]
 background_volume = int(os.environ.get("BACKGROUND_VOLUME", "70"))
-prefquality = os.environ.get("QUALITY", "192")
+prefaudioquality = os.environ.get("AUDIO", "192")
+prefvideoquality = os.environ.get("VIDEO", "480")
 novideo = "NOVIDEO" in os.environ
 debugmode = "DEBUG" in os.environ
 maxscreens = -1
@@ -22,14 +23,10 @@ maxscreens = -1
 waittime = 1
 
 parameters = []
-parameters_fallback = []
 
-parameters += ["--ytdl-format=worstaudio[abr>={quality}]/bestaudio/worst[abr>={quality}]/best".format(quality=prefquality)]
-parameters_fallback += ["--ytdl-format=worstaudio[abr>={quality}]/bestaudio/worst[abr>={quality}]/best".format(quality=prefquality)]
 
 if not debugmode:
     parameters += ["--no-terminal", "--really-quiet"]
-    parameters_fallback += ["--no-terminal", "--really-quiet"]
 
 if sys.platform in ["linux", "freebsd"]:
     if not novideo and os.getenv("DISPLAY") is None and os.getenv("WAYLAND_DISPLAY") is None:
@@ -81,10 +78,10 @@ def count_screens():
 
 #print("Screens detected:", count_screens())
 
+
 basedir = os.path.dirname(__file__)
 playdir = os.path.join(basedir, "mpv_files")
 playdir = os.path.realpath(playdir)
-
 
 
 if len(sys.argv)>1:
@@ -114,6 +111,15 @@ def check_isplaying_audio():
         if elem[0].poll() is not None and elem[2]:
             return True
     return False
+def get_ytdlquality(onlyvideo=False):
+    if novideo and not onlyvideo:
+        return "--ytdl-format=worstaudio[abr>={aquality}]/bestaudio/worst[abr>={aquality}]/best".format(aquality=prefaudioquality)
+    elif not novideo and onlyvideo:
+        return "--ytdl-format=worstvideo[height>={vquality}]/bestvideo/worst[height>={vquality}]/best".format(vquality=prefvideoquality)
+    elif not novideo and not onlyvideo:
+        return "--ytdl-format=worst[height>={vquality}][abr>=?{aquality}]/best".format(aquality=prefaudioquality, vquality=prefvideoquality)
+    else:
+        return None
 
 def convert_path(path):
     if "://" in path[:10] and path.split("://", 1)[0] not in allowed_protocols:
@@ -197,15 +203,14 @@ def start_a(screen):
 def start_b():
     start_mpv(int(request.forms.get('screenid')))
         
-def start_mpv(screen, use_fallback=False):
+def start_mpv(screen):
     if screen>max(count_screens()-1, 0) or screen < 0:
         abort(400,"Error: screenid invalid")
         return
     if cur_mpvprocess.get(screen) and cur_mpvprocess.get(screen)[0].poll() is None:
         cur_mpvprocess.get(screen)[0].terminate()
         cur_mpvprocess.get(screen)[0].wait()
-    # FIXME: no utf-8 support
-    turl = request.forms.get('stream_path')
+    turl = request.forms.getunicode('stream_path', "")
     if turl=="":
         abort(400,"Error: no stream/file specified")
         return
@@ -218,38 +223,36 @@ def start_mpv(screen, use_fallback=False):
         abort(400,"no such file")
         return
     calledargs = [pathtompv]
-    if use_fallback:
-        calledargs += parameters_fallback
-    else:
-        calledargs += parameters
+    calledargs += parameters
     screens = count_screens()
     if not novideo and screens > 0:
         calledargs += ["--fs"]
         if screens > 1:
             calledargs += ["--fs-screen", "{}".format(screen)]
-    elif use_fallback:
-        calledargs.append("--vo=null")
     else:
+        calledargs.append("--vo=null")
         calledargs.append("--no-video")
-    if check_isplaying_audio():
+    if check_isplaying_audio() and not novideo:
         calledargs += ["--audio=no"]
         hasaudio = False
-    else:
-        #calledargs += ["--softvol=yes"]
+    elif not novideo:
         hasaudio = True
         if request.forms.get('background', False):
             calledargs += ["--volume={}".format(background_volume)]
-    #else:
-    #    calledargs += ["--volume=100"]
-    
+        #else:
+        #    calledargs += ["--volume=100"]
+    else:
+        abort(400,"cannot play video (novideo and audio plays)")
+        return
+    calledargs += [get_ytdlquality(onlyvideo=not hasaudio)]
+    if calledargs[-1] is None:
+        abort(400,"should not happen, case catched")
+        return
     calledargs.append(newurl)
     cur_mpvprocess[screen] = [Popen(calledargs, cwd=playdir), turl, hasaudio]
     time.sleep(waittime)
     if cur_mpvprocess[screen][0].poll() is not None:
-        if use_fallback:
-            abort(500, "playing file failed")
-        else:
-            start_mpv(screen, use_fallback=True)
+        abort(500, "playing file failed")
     else:
         redirect("/index")
 
