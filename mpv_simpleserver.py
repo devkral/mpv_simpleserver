@@ -3,6 +3,7 @@
 from bottle import route, run, template, request, redirect, abort, debug
 import os
 from subprocess import Popen
+import re
 import time
 import sys
 if os.sep != "/":
@@ -121,6 +122,9 @@ def get_ytdlquality(onlyvideo=False):
     else:
         return None
 
+
+remove_v = re.compile("&?v=[^&]*&?")
+
 def convert_path(path):
     if "://" in path[:10] and path.split("://", 1)[0] not in allowed_protocols:
         return None, False
@@ -186,10 +190,9 @@ def index_intern(relpath):
         if val[0].poll() is not None:
             #del cur_mpvprocess[screennu]
             continue
-        listscreens.append((screennu, val[1]))
+        listscreens.append((screennu, *val[1:]))
     screens = count_screens()
     hidescreens = screens<=1
-    print(backconvert(relpath))
     return template(pages["index"], currentdir=backconvert(relpath), \
                     currentfile=backconvert(currentfile), \
                     playfiles=pllist, hidescreens=hidescreens, \
@@ -214,11 +217,17 @@ def start_mpv(screen):
     if turl=="":
         abort(400,"Error: no stream/file specified")
         return
+    playplaylist = bool(request.forms.get('playplaylist', True))
     # should fix arbitary reads
     newurl, isfile = convert_path(turl)
     if newurl is None:
         abort(400,"forbidden pathtype")
         return
+    if playplaylist:
+        if not isfile and "youtube" in path and "list=" in path:
+            path = remove_v.sub("", path.replace("watch", "playlist"))
+    else:
+        pass
     if isfile and not os.path.isfile(newurl):
         abort(400,"no such file")
         return
@@ -232,6 +241,8 @@ def start_mpv(screen):
     else:
         calledargs.append("--vo=null")
         calledargs.append("--no-video")
+    isbackground = False
+    isloop = False
     if check_isplaying_audio():
         calledargs += ["--audio=no"]
         hasaudio = False
@@ -239,14 +250,18 @@ def start_mpv(screen):
         hasaudio = True
         if request.forms.get('background', False):
             calledargs += ["--volume={}".format(background_volume)]
+            isbackground = True
         #else:
         #    calledargs += ["--volume=100"]
+    if request.forms.get('loop', False):
+        calledargs += ["--loop=inf"]
+        isloop = True
     calledargs += [get_ytdlquality(onlyvideo=not hasaudio)]
     if calledargs[-1] is None:
         abort(400,"cannot play video (novideo and audio plays)")
         return
     calledargs.append(newurl)
-    cur_mpvprocess[screen] = [Popen(calledargs, cwd=playdir), turl, hasaudio]
+    cur_mpvprocess[screen] = [Popen(calledargs, cwd=playdir), turl, hasaudio, isbackground, isloop]
     time.sleep(waittime)
     if cur_mpvprocess[screen][0].poll() is not None:
         abort(500, "playing file failed")

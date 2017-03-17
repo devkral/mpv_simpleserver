@@ -24,9 +24,16 @@
     <span title="shot in the dark"><input value="Stop" type="submit" id="mpv_stop" style="color: #FFFFFF; background-color: #555555; border-radius: 4px;" formaction="/stop"/></span>
 %end
     <br>
-    Background (quieter) <input name="background" id="backgroundid" type="checkbox"/>
+    Background (quieter) <input name="background" type="checkbox"/>
+    Play Playlist <input name="playplaylist" checked="" type="checkbox"/>
+    Loop <input name="loop" type="checkbox"/>
     <br>
-    Url/File: <input name="stream_path" id="stream_pathid" type="text" placeholder="<Url/File>" value="{{currentfile}}" style="width:90%;min-width: 150px;"/>
+    Url/File: 
+%if currentfile!="":
+    <input name="stream_path" id="stream_pathid" type="text" placeholder="<Url/File>" autofocus=true value="{{currentfile}}" style="width:90%;min-width: 150px;"/>
+%else:
+    <input name="stream_path" id="stream_pathid" type="text" placeholder="<Url/File>" autofocus=true style="width:90%;min-width: 150px;"/>
+%end
     <input value="Play" type="submit" id="mpv_play" formaction="/start"/>
 </form>
 </td>
@@ -35,9 +42,17 @@
 <table style="border-collapse: collapse; width:100%; border: 1px solid #000000;">
 <tr><th style="border-bottom: 1px solid;">Playing:</th></tr>
 %if len(playingscreens)>0:
-%for screennum,playingfile in playingscreens:
+%for screennum, playingfile, hasaudio, isbackground, isloop in playingscreens:
     <tr><td>
         <a href="#" onclick='document.getElementById("screenidid").value={{screennum}}; document.getElementById("screenidid").style="background-color: #00FF00;";document.getElementById("stream_pathid").value="{{playingfile}}"'><b>{{screennum}}</b>: {{playingfile}}</a>
+%if not hasaudio:
+ mute
+%elif isbackground:
+ background
+%end
+%if isloop:
+ looped
+%end
     </td></tr>
 %end
 %else:
