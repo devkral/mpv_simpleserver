@@ -232,21 +232,18 @@ def start_mpv(screen):
     else:
         calledargs.append("--vo=null")
         calledargs.append("--no-video")
-    if check_isplaying_audio() and not novideo:
+    if check_isplaying_audio():
         calledargs += ["--audio=no"]
         hasaudio = False
-    elif not novideo:
+    else:
         hasaudio = True
         if request.forms.get('background', False):
             calledargs += ["--volume={}".format(background_volume)]
         #else:
         #    calledargs += ["--volume=100"]
-    else:
-        abort(400,"cannot play video (novideo and audio plays)")
-        return
     calledargs += [get_ytdlquality(onlyvideo=not hasaudio)]
     if calledargs[-1] is None:
-        abort(400,"should not happen, case catched")
+        abort(400,"cannot play video (novideo and audio plays)")
         return
     calledargs.append(newurl)
     cur_mpvprocess[screen] = [Popen(calledargs, cwd=playdir), turl, hasaudio]
