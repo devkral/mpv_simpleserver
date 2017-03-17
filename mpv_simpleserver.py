@@ -108,7 +108,7 @@ if os.path.exists(iconpath):
 
 def check_isplaying_audio():
     for elem in cur_mpvprocess.values():
-        if elem[0].poll() is not None and elem[2]:
+        if elem[0].poll() is None and elem[2]:
             return True
     return False
 def get_ytdlquality(onlyvideo=False):
