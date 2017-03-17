@@ -16,6 +16,7 @@ allowed_protocols = ["file", "http", "https", "ftp", "smb", "mf"]
 background_volume = int(os.environ.get("BACKGROUND_VOLUME", "70"))
 prefaudioquality = os.environ.get("AUDIO", "192")
 prefvideoquality = os.environ.get("VIDEO", "480")
+port = int(os.environ.get("PORT", "80"))
 novideo = "NOVIDEO" in os.environ
 debugmode = "DEBUG" in os.environ
 maxscreens = -1
@@ -291,6 +292,6 @@ def stop_mpv(screen):
 
 debug(debugmode)
 if debugmode:
-    run(host='::', port=8080)
+    run(host='::', port=port)
 else:
-    run(host='::', port=8080, quiet=True)
+    run(host='::', port=port, quiet=True)
