@@ -224,8 +224,8 @@ def start_mpv(screen):
         abort(400,"forbidden pathtype")
         return
     if playplaylist:
-        if not isfile and "youtube" in path and "list=" in path:
-            path = remove_v.sub("", path.replace("watch", "playlist"))
+        if not isfile and "youtube" in newurl and "list=" in newurl:
+            newurl = remove_v.sub("", newurl.replace("watch", "playlist"))
     else:
         pass
     if isfile and not os.path.isfile(newurl):
