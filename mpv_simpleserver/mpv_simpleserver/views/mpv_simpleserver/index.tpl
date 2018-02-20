@@ -20,10 +20,17 @@
     }
   }
   .mpvformcontrol {
+    padding-left: 4px;
+    padding-bottom: 8px;
     border-right: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
-    margin-left: 2px;
-    margin-right: 2px;
+    margin-left: 10px;
+  }
+  .mpvformcontrol:hover {
+    margin-left: 6px;
+    padding-left: 8px;
+    border-right: 1px solid #99f;
+    border-bottom: 1px solid #99f;
   }
   </style>
 </head>
@@ -82,7 +89,7 @@
             %if len(playingscreens) > 0:
               <input value="Stop" type="submit" class="w3-gray w3-button" formaction="/stop"/>
             %end
-            <span style="margin-left: 10px">
+            <span style="margin-left: 5px">
               <span class="mpvformcontrol w3-tooltip">
                 Background <span class="w3-text w3-white w3-card-4" style="padding:3px;position:absolute;left:0;bottom:30px" ><em>background plays quieter</em></span> <input name="background" class="w3-check" type="checkbox"/>
               </span>

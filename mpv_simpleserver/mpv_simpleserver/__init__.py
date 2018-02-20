@@ -82,17 +82,6 @@ bottle.TEMPLATE_PATH.append(os.path.join(basedir, "views"))
 playdir = os.path.join(os.path.expanduser("~"), "mpv_files")
 playdir = os.path.realpath(playdir)
 
-
-if len(sys.argv)>1:
-    if os.path.isdir(sys.argv[1]):
-        playdir = sys.argv[1]
-    else:
-        print("Usage: {} [existing directory]".format(sys.argv[0]))
-        sys.exit(1)
-else:
-    # for relative path security ensure playdir
-    os.makedirs(playdir, exist_ok=True)
-
 cur_mpvprocess = {}
 
 datapath = os.path.join(basedir, "static")
