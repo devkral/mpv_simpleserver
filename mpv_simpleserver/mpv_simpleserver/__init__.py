@@ -42,7 +42,6 @@ else:
         return path
 
 if os.sep != "/":
-    @functools.lru_cache(maxsize=512)
     def backconvert(path):
         return path.replace(os.sep, "/")
 else:
