@@ -12,10 +12,11 @@
       /*width: 200px;*/
       width: 20%;
       right:10px;
+      /*bottom: 10px;*/
       background-color: #fff;
       position: fixed !important;
       z-index: 1;
-      overflow: auto;
+      overflow: hidden;
     }
   }
   .mpvformcontrol {
