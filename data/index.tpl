@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
   <title>Play Music</title>
+  <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="w3.css">
+  <link rel="stylesheet" type="text/css" href="static/w3.css"/>
 </head>
 <body>
   <header class="w3-top w3-bar">
-    <h1>Play Music</h1>
-    <div>
-      <form class="w3-right" method="post">
+    <h1 class="w3-center">Play Music</h1>
+    <span style="position:absolute;top:10px;left:20px">
+      <form class="" method="post">
           %if hidescreens == True:
           <span hidden>
           %end
             Screen: <input name="screenid" id="top-screenselect" class="w3-input" onblur="document.getElementById('content-screenselect').value = this.value;" id="screenidid" type="number" value="0" max="{{maxscreens}}" min="0" placeholder="<screen>"/>
           %if hidescreens:
-        </span>
+          </span>
           %end
-          <input value="Stop" type="submit" class="w3-button" formaction="/stop"/>
+          <input value="Stop" type="submit" class="w3-gray w3-button" formaction="/stop"/>
       </form>
-    </div>
+    </span>
   </header>
-  <main>
+  <main style="margin-top:100px">
     <table style="width:100%;">
       <tr>
         <td style="width:60%;">
@@ -38,13 +38,12 @@
         <input value="Stop" type="submit" class="w3-button" id="mpv_stop" formaction="/stop"/>
     %end
         <br>
-        Background (quieter) <input name="background" type="checkbox"/>
-        Play Playlist <input name="playplaylist" checked="" type="checkbox"/>
-        Loop <input name="loop" type="checkbox"/>
+        Background (quieter) <input name="background" class="w3-check" type="checkbox"/>
+        Play Playlist <input name="playplaylist" checked="checked" class="w3-check" type="checkbox"/>
+        Loop <input name="loop" class="w3-check" type="checkbox"/>
         <br>
         <input name="stream_path" id="stream_pathid" type="text" class="w3-input w3-animate-input" placeholder="<Url/File>" autofocus=true value="{{currentfile}}"/>
-    %end
-        <input value="Play" type="submit" id="mpv_play" formaction="/start"/>
+        <input value="Play" class="w3-gray w3-button" type="submit" id="mpv_play" formaction="/start"/>
     </form>
     </td>
 
@@ -74,16 +73,16 @@
     <tr><th style="border-bottom: 1px solid; border-top: 1px solid;">Files in <a href='/index/{{currentdir}}'>{{currentdir}}</a>:</th></tr>
     %end
     %if len(playfiles)>0:
-    %for playfile, playaction, realfile in playfiles:
-        <tr><td>
-            %if playaction == "file":
-                <a href="#" onclick='document.getElementById("stream_pathid").value="{{realfile}}"' style="color: #0000FF;">{{playfile}}</a>
-            %end
-            %if playaction == "dir":
-                <a href="/index/{{realfile}}" style="color: #000000;">{{playfile}}</a>
-            %end
-        </td></tr>
-    %end
+      %for playfile, playaction, realfile in playfiles:
+          <tr><td>
+              %if playaction == "file":
+                  <a href="#" onclick='document.getElementById("stream_pathid").value="{{realfile}}"' style="color: #0000FF;">{{playfile}}</a>
+              %end
+              %if playaction == "dir":
+                  <a href="/index/{{realfile}}" style="color: #000000;">{{playfile}}</a>
+              %end
+          </td></tr>
+      %end
     %end
     %if len(playfiles)==0 or (len(playfiles)==1 and currentdir!=""):
         <tr><td><b>empty</b></td></tr>

@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
 
 from bottle import route, run, template, request, redirect, abort, debug
+from bottle import static_file
+from bottle import Bottle
 import os
 from subprocess import Popen
 import re
@@ -102,17 +104,7 @@ for _name, _path in pages.items():
     with open(os.path.join(basedir, _path), "r") as reado:
         pages[_name] = reado.read()
 
-icon = b""
-iconpath = os.path.join(basedir, "data/favicon.ico")
-if os.path.exists(iconpath):
-    with open(iconpath, "rb") as icoob:
-        icon = icoob.read()
-
-w3css = b""
-w3csspath = os.path.join(basedir, "data/w3.css")
-if os.path.exists(w3csspath):
-    with open(w3csspath, "rb") as icoob:
-        w3css = icoob.read()
+datapath = os.path.join(basedir, "data", "static")
 
 def check_isplaying_audio():
     for elem in cur_mpvprocess.values():
@@ -143,35 +135,6 @@ def convert_path(path):
         path = os.path.join(playdir, path)
         return path, True
     return path, False
-
-@route(path='/favicon.ico', method="GET")
-def return_icon():
-    return icon
-
-@route(path='/w3.css', method="GET")
-def return_w3css():
-    return w3css
-
-@route(path='/index/', method="GET")
-def redwrong_index():
-    redirect("/index")
-
-@route(path='/index', method="GET")
-@route(path='/', method="GET")
-def index_a():
-    ret = index_intern("")
-    if ret:
-        return ret
-    abort(500, "Magic smoke?")
-
-
-@route(path='/index/<path:path>', method="GET")
-def index_b(path):
-    path = converttopath(path)
-    ret = index_intern(path)
-    if ret:
-        return ret
-    abort(404, "directory not found")
 
 def index_intern(relpath):
     relpath = relpath.lstrip("./\\")
@@ -208,14 +171,6 @@ def index_intern(relpath):
                     currentfile=backconvert(currentfile), \
                     playfiles=pllist, hidescreens=hidescreens, \
                     maxscreens=max(0,screens-1), playingscreens=listscreens)
-
-@route(path='/start/<screen:int>', method="POST")
-def start_a(screen):
-    start_mpv(screen)
-
-@route(path='/start', method="POST")
-def start_b():
-    start_mpv(int(request.forms.get('screenid')))
 
 def start_mpv(screen):
     if screen>max(count_screens()-1, 0) or screen < 0:
@@ -279,14 +234,6 @@ def start_mpv(screen):
     else:
         redirect("/index")
 
-@route(path='/stop', method="POST")
-def stop_b():
-    stop_mpv(int(request.forms.get('screenid')))
-
-@route(path='/stop/<screen:int>', method="GET")
-def stop(screen):
-    stop_mpv(screen)
-
 def stop_mpv(screen):
     if screen > max(0, maxscreens) or screen < 0:
         abort(400,"Error: screenid invalid")
@@ -300,8 +247,58 @@ def stop_mpv(screen):
     time.sleep(waittime)
     redirect("/index")
 
-debug(debugmode)
-if debugmode:
-    run(host='::', port=port)
-else:
-    run(host='::', port=port, quiet=True)
+
+
+mpvserver = Bottle()
+
+@mpvserver.route(path='/favicon.ico', method="GET")
+def return_icon():
+    return static_file("favivon.ico", root=datapath)
+
+@mpvserver.route(path='/static/<sfile>', method="GET")
+def return_static(sfile):
+    return static_file(sfile, root=datapath)
+
+@mpvserver.route(path='/index/', method="GET")
+def redwrong_index():
+    redirect("/index")
+
+@mpvserver.route(path='/index', method="GET")
+@mpvserver.route(path='/', method="GET")
+def index_a():
+    ret = index_intern("")
+    if ret:
+        return ret
+    abort(500, "Magic smoke?")
+
+
+@mpvserver.route(path='/index/<path:path>', method="GET")
+def index_b(path):
+    path = converttopath(path)
+    ret = index_intern(path)
+    if ret:
+        return ret
+    abort(404, "directory not found")
+
+@mpvserver.route(path='/start/<screen:int>', method="POST")
+def start_a(screen):
+    start_mpv(screen)
+
+@mpvserver.route(path='/start', method="POST")
+def start_b():
+    start_mpv(int(request.forms.get('screenid')))
+
+@mpvserver.route(path='/stop', method="POST")
+def stop_b():
+    stop_mpv(int(request.forms.get('screenid')))
+
+@mpvserver.route(path='/stop/<screen:int>', method="GET")
+def stop(screen):
+    stop_mpv(screen)
+
+if __name__ == "__main__":
+    debug(debugmode)
+    if debugmode:
+        mpvserver.run(host='::', port=port)
+    else:
+        mpvserver.run(host='::', port=port, quiet=True)
