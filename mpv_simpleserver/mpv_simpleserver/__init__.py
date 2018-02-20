@@ -79,7 +79,6 @@ def count_screens():
 
 basedir = os.path.dirname(__file__)
 bottle.TEMPLATE_PATH.append(os.path.join(basedir, "views"))
-print(bottle.TEMPLATE_PATH)
 playdir = os.path.join(os.path.expanduser("~"), "mpv_files")
 playdir = os.path.realpath(playdir)
 
