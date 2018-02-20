@@ -1,0 +1,12 @@
+[Unit]
+Description=mpv_simpleserver
+After=network.target
+
+[Service]
+Environment="NOVIDEO=true"
+ExecStart=/usr/bin/python3 /home/alarm/mpv_simpleserver/mpv_simpleserver.py /home/alarm/playdir
+Restart=on-abort
+User=%i
+
+[Install]
+WantedBy=multi-user.target

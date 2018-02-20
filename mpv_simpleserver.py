@@ -108,6 +108,12 @@ if os.path.exists(iconpath):
     with open(iconpath, "rb") as icoob:
         icon = icoob.read()
 
+w3css = b""
+w3csspath = os.path.join(basedir, "data/w3.css")
+if os.path.exists(w3csspath):
+    with open(w3csspath, "rb") as icoob:
+        w3css = icoob.read()
+
 def check_isplaying_audio():
     for elem in cur_mpvprocess.values():
         if elem[0].poll() is None and elem[2]:
@@ -141,6 +147,10 @@ def convert_path(path):
 @route(path='/favicon.ico', method="GET")
 def return_icon():
     return icon
+
+@route(path='/w3.css', method="GET")
+def return_w3css():
+    return w3css
 
 @route(path='/index/', method="GET")
 def redwrong_index():
@@ -206,7 +216,7 @@ def start_a(screen):
 @route(path='/start', method="POST")
 def start_b():
     start_mpv(int(request.forms.get('screenid')))
-        
+
 def start_mpv(screen):
     if screen>max(count_screens()-1, 0) or screen < 0:
         abort(400,"Error: screenid invalid")
@@ -272,11 +282,11 @@ def start_mpv(screen):
 @route(path='/stop', method="POST")
 def stop_b():
     stop_mpv(int(request.forms.get('screenid')))
-    
+
 @route(path='/stop/<screen:int>', method="GET")
 def stop(screen):
     stop_mpv(screen)
-    
+
 def stop_mpv(screen):
     if screen > max(0, maxscreens) or screen < 0:
         abort(400,"Error: screenid invalid")
