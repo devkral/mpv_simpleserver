@@ -78,7 +78,8 @@ def count_screens():
 
 
 basedir = os.path.dirname(__file__)
-bottle.TEMPLATE_PATH.insert(0, os.path.join(basedir, "views"))
+bottle.TEMPLATE_PATH.append(os.path.join(basedir, "views"))
+print(bottle.TEMPLATE_PATH)
 playdir = os.path.join(os.path.expanduser("~"), "mpv_files")
 playdir = os.path.realpath(playdir)
 
@@ -251,13 +252,13 @@ def return_static(sfile):
     return static_file(sfile, root=datapath)
 
 @mpvserver.route(path='/index/', method="GET")
-@view('index')
+@view('mpv_simpleserver/index')
 def redwrong_index():
     redirect("/index")
 
 @mpvserver.route(path='/index', method="GET")
 @mpvserver.route(path='/', method="GET")
-@view('index')
+@view('mpv_simpleserver/index')
 def index_a():
     ret = index_intern("")
     if ret:
@@ -266,7 +267,7 @@ def index_a():
 
 
 @mpvserver.route(path='/index/<path:path>', method="GET")
-@view('index')
+@view('mpv_simpleserver/index')
 def index_b(path):
     path = converttopath(path)
     ret = index_intern(path)
