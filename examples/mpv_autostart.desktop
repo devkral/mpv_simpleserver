@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=MPV_simpleserver
 Comment=control mpv by webbrowser
-Exec=/usr/bin/env NOVIDEO=true /home/alarm/mpv_simpleserver/mpv_simpleserver.py /home/alarm/playdir
+Exec=/usr/bin/env NOVIDEO=true python3 /home/alarm/mpv_simpleserver/mpv_simpleserver /home/alarm/playdir
 Terminal=false
 Type=Application
 Encoding=UTF-8
