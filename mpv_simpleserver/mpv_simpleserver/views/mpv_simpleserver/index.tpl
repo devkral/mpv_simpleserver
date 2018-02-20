@@ -104,10 +104,12 @@
           </div>
         </div>
         <div class="w3-col s12 l6">
-          <div class="w3-card-4" style="height:400px;overflow: hidden;">
-            <h3 style="margin-left:10px">Youtube:</h3>
-            <hr style="margin: 0 0 5px 0"/>
-            <iframe src="https://youtube.com/embed?listType=search&list=music" style="border:none;" height="90%" width="100%"></iframe>
+          <div class="w3-card-4" style="height:400px">
+            <div style="overflow: hidden; height: 95%">
+              <h3 style="margin-left:10px">Youtube:</h3>
+              <hr style="margin: 0 0 5px 0"/>
+              <iframe src="https://youtube.com/embed?listType=search&list=music" style="border:none;" height="90%" width="100%"></iframe>
+            </div>
           </div>
         </div>
       </div>
