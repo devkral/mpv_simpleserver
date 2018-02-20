@@ -233,7 +233,8 @@ mpvserver = Bottle()
 
 @mpvserver.route(path='/favicon.ico', method="GET")
 def return_icon():
-    return static_file("favivon.ico", root=datapath)
+    print("kssl")
+    return static_file("favicon.ico", root=datapath)
 
 @mpvserver.route(path='/static/<sfile>', method="GET")
 def return_static(sfile):
