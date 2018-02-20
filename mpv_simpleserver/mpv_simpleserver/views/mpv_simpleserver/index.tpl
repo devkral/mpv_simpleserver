@@ -5,6 +5,26 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" type="text/css" href="static/w3.css"/>
+  <style type="text/css">
+  @media (min-width:601px){
+    .resp-sidebar {
+      height: 100%;
+      /*width: 200px;*/
+      width: 20%;
+      right:10px;
+      background-color: #fff;
+      position: fixed !important;
+      z-index: 1;
+      overflow: auto;
+    }
+  }
+  .mpvformcontrol {
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    margin-left: 2px;
+    margin-right: 2px;
+  }
+  </style>
 </head>
 <body class="w3-blue">
   <header class="w3-top w3-bar w3-black">
@@ -22,76 +42,73 @@
       </form>
     </span>
   </header>
-  <main class="w3-white w3-content" style="margin-top:100px">
-    <table style="width:100%;">
-      <tr>
-        <td style="width:60%;">
-          <form method="post">
-            %if hidescreens == True:
-            <div hidden>
+  <div style="margin-top:100px">
+    <aside class="w3-bar-block w3-card-4 w3-white w3-mobile resp-sidebar" style="">
+      <h2 class="w3-bar-item" style="margin-left: 10px;">Playing:</h2>
+      <hr style="margin: 0 0 5px 0"/>
+      %for screennum, playingfile, hasaudio, isbackground, isloop in playingscreens:
+        <a class="w3-bar-item w3-grey w3-button" onclick='document.getElementById("top-screenselect").value="{{screennum}}"; document.getElementById("content-screenselect").value="{{screennum}}";document.getElementById("stream_pathid").value="{{playingfile}}";arguments[0].stopPropagation();'><b>{{screennum}}</b>: {{playingfile}}
+          <small class="">
+            %if not hasaudio:
+                mute
+            %elif isbackground:
+                background
             %end
-              Screen: <input name="screenid" id="content-screenselect" class="w3-button onblur="document.getElementById('top-screenselect').value = this.value;" id="screenidid" type="number" value="0" max="{{maxscreens}}" min="0" placeholder="<screen>"/>
-            %if hidescreens:
-            </div>
+            %if isloop:
+                looped
             %end
-    %if len(playingscreens) > 0:
-        <input value="Stop" type="submit" class="w3-button" id="mpv_stop" formaction="/stop"/>
-    %end
-        <br>
-        Background (quieter) <input name="background" class="w3-check" type="checkbox"/>
-        Play Playlist <input name="playplaylist" checked="checked" class="w3-check" type="checkbox"/>
-        Loop <input name="loop" class="w3-check" type="checkbox"/>
-        <br>
-        <input name="stream_path" id="stream_pathid" type="text" class="w3-input w3-animate-input" placeholder="<Url/File>" autofocus=true value="{{currentfile}}"/>
-        <input value="Play" class="w3-gray w3-button" type="submit" id="mpv_play" formaction="/start"/>
-    </form>
-    </td>
-
-    <td>
-    <table style="border-collapse: collapse; width:100%; border: 1px solid #000000;">
-    <tr><th style="border-bottom: 1px solid;">Playing:</th></tr>
-    %if len(playingscreens)>0:
-    %for screennum, playingfile, hasaudio, isbackground, isloop in playingscreens:
-        <tr><td>
-            <a href="#" onclick='document.getElementById("screenidid").value={{screennum}}; document.getElementById("screenidid").style="background-color: #00FF00;";document.getElementById("stream_pathid").value="{{playingfile}}"'><b>{{screennum}}</b>: {{playingfile}}</a>
-    %if not hasaudio:
-     mute
-    %elif isbackground:
-     background
-    %end
-    %if isloop:
-     looped
-    %end
-        </td></tr>
-    %end
-    %else:
-        <tr><td>No played files</td></tr>
-    %end
-    %if currentdir=="":
-    <tr><th style="border-bottom: 1px solid; border-top: 1px solid;">Files:</th></tr>
-    %else:
-    <tr><th style="border-bottom: 1px solid; border-top: 1px solid;">Files in <a href='/index/{{currentdir}}'>{{currentdir}}</a>:</th></tr>
-    %end
-    %if len(playfiles)>0:
-      %for playfile, playaction, realfile in playfiles:
-          <tr><td>
-              %if playaction == "file":
-                  <a href="#" onclick='document.getElementById("stream_pathid").value="{{realfile}}"' style="color: #0000FF;">{{playfile}}</a>
-              %end
-              %if playaction == "dir":
-                  <a href="/index/{{realfile}}" style="color: #000000;">{{playfile}}</a>
-              %end
-          </td></tr>
+          </small>
+        </a>
       %end
-    %end
-    %if len(playfiles)==0 or (len(playfiles)==1 and currentdir!=""):
-        <tr><td><b>empty</b></td></tr>
-    %end
-
-    </table>
-    </td>
-    </tr>
-    <table>
-  </main>
+    </aside>
+    <main class="w3-white w3-content">
+      <h1 style="margin-left: 30px">Enter Music to play:</h1>
+      <hr style="margin: 0 0 5px 0"/>
+      <div>
+        <form class="" method="post">
+          %if hidescreens == True:
+          <div hidden>
+          %end
+            Screen: <input name="screenid" id="content-screenselect" class="w3-button onblur="document.getElementById('top-screenselect').value = this.value;" id="screenidid" type="number" value="0" max="{{maxscreens}}" min="0" placeholder="<screen>"/>
+          %if hidescreens:
+          </div>
+          %end
+          <div>
+          </div>
+          <input name="stream_path" id="stream_pathid" type="text" class="w3-input w3-animate-input" placeholder="<Url/File>" autofocus=true value="{{currentfile}}"/>
+          <div>
+            <input value="Play" class="w3-gray w3-button" type="submit"formaction="/start"/>
+            %if len(playingscreens) > 0:
+              <input value="Stop" type="submit" class="w3-gray w3-button" formaction="/stop"/>
+            %end
+            <span style="margin-left: 10px">
+              <span class="mpvformcontrol w3-tooltip">
+                Background <span class="w3-text w3-white w3-card-4" style="padding:3px;position:absolute;left:0;bottom:30px" ><em>background plays quieter</em></span> <input name="background" class="w3-check" type="checkbox"/>
+              </span>
+              <span class="mpvformcontrol w3-tooltip">
+                Playlist <span class="w3-text w3-white w3-card-4" style="padding:3px;position:absolute;left:0;bottom:30px" ><em>play whole playlist</em></span> <input name="playplaylist" checked="checked" class="w3-check" type="checkbox"/>
+              </span>
+              <span class="mpvformcontrol w3-tooltip">
+                Loop <span class="w3-text w3-white w3-card-4" style="padding:3px;position:absolute;left:0;bottom:30px" ><em>repeat video/playlist</em></span> <input name="loop" class="w3-check" type="checkbox"/>
+              </span>
+            </span>
+          </div>
+        </form>
+      </div>
+      <hr/>
+      <div class="w3-row-padding" style="padding-bottom:10px">
+        <div class="w3-col s12 l6">
+          <div class="w3-card-4" style="height:200px;">
+            %include('mpv_simpleserver/provider/files.tpl', **locals())
+          </div>
+        </div>
+        <div class="w3-col s12 l6">
+          <div class="w3-card-4" style="height:200px">
+            <iframe src="https://youtube.com/embed?listType=search&list=music" style="border:none;" width="100%" height="100%"></iframe>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
 </body>
 </html>
