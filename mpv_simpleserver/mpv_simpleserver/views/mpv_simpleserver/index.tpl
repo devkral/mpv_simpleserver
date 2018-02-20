@@ -4,7 +4,7 @@
   <title>Play Music</title>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" type="text/css" href="static/w3.css"/>
+  <link rel="stylesheet" type="text/css" href="/static/w3.css"/>
   <style type="text/css">
   @media (min-width:601px){
     .resp-sidebar {
@@ -99,13 +99,15 @@
       <hr/>
       <div class="w3-row-padding" style="padding-bottom:10px">
         <div class="w3-col s12 l6">
-          <div class="w3-card-4" style="height:200px;">
+          <div class="w3-card-4" style="height:400px;overflow: auto;">
             %include('mpv_simpleserver/provider/files.tpl', **locals())
           </div>
         </div>
         <div class="w3-col s12 l6">
-          <div class="w3-card-4" style="height:200px">
-            <iframe src="https://youtube.com/embed?listType=search&list=music" style="border:none;" width="100%" height="100%"></iframe>
+          <div class="w3-card-4" style="height:400px;overflow: hidden;">
+            <h3 style="margin-left:10px">Youtube:</h3>
+            <hr style="margin: 0 0 5px 0"/>
+            <iframe src="https://youtube.com/embed?listType=search&list=music" style="border:none;" height="90%" width="100%"></iframe>
           </div>
         </div>
       </div>

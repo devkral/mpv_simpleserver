@@ -1,7 +1,7 @@
-<h3 style="margin-left:10px">Files:</h3>
+<h3 style="margin-left:10px">Files: {{currentdir}}</h3>
 <hr style="margin: 0 0 5px 0"/>
 %for playfile, playaction, realfile in playfiles:
-  <div>
+  <div style="padding:3px">
   %if playaction == "file":
     <a href="#" onclick='document.getElementById("stream_pathid").value="{{realfile}}"' style="color: #0000FF;">{{playfile}}</a>
   %end
