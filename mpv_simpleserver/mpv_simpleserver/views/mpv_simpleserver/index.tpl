@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" type="text/css" href="static/w3.css"/>
 </head>
-<body>
-  <header class="w3-top w3-bar">
+<body class="w3-blue">
+  <header class="w3-top w3-bar w3-black">
     <h1 class="w3-center">Play Music</h1>
     <span style="position:absolute;top:10px;left:20px">
       <form class="" method="post">
@@ -22,7 +22,7 @@
       </form>
     </span>
   </header>
-  <main style="margin-top:100px">
+  <main class="w3-white w3-content" style="margin-top:100px">
     <table style="width:100%;">
       <tr>
         <td style="width:60%;">
