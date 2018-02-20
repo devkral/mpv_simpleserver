@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
-from bottle import route, run, template, request, redirect, abort, debug
+import bottle
+from bottle import route, run, template, request, redirect, abort, debug, view
 from bottle import static_file
 from bottle import Bottle
 import os
@@ -8,12 +9,8 @@ from subprocess import Popen
 import re
 import time
 import sys
-if os.sep != "/":
-    import functools
 
 pathtompv = "/usr/bin/mpv"
-# path is replaced by filecontent
-pages = {"index": "data/index.tpl"} #, "success": "data/success.tpl","success": "data/error.tpl"}
 allowed_protocols = ["file", "http", "https", "ftp", "smb", "mf"]
 background_volume = int(os.environ.get("BACKGROUND_VOLUME", "70"))
 prefaudioquality = os.environ.get("AUDIO", "192")
@@ -38,7 +35,6 @@ if sys.platform in ["linux", "freebsd"]:
         novideo = True
 
 if os.sep != "/":
-    @functools.lru_cache(maxsize=512)
     def converttopath(path):
         return path.replace(os.sep, "/")
 else:
@@ -84,7 +80,8 @@ def count_screens():
 
 
 basedir = os.path.dirname(__file__)
-playdir = os.path.join(basedir, "mpv_files")
+bottle.TEMPLATE_PATH.insert(0, os.path.join(basedir, "views"))
+playdir = os.path.join(os.path.expanduser("~"), "mpv_files")
 playdir = os.path.realpath(playdir)
 
 
@@ -100,11 +97,7 @@ else:
 
 cur_mpvprocess = {}
 
-for _name, _path in pages.items():
-    with open(os.path.join(basedir, _path), "r") as reado:
-        pages[_name] = reado.read()
-
-datapath = os.path.join(basedir, "data", "static")
+datapath = os.path.join(basedir, "static")
 
 def check_isplaying_audio():
     for elem in cur_mpvprocess.values():
@@ -167,7 +160,7 @@ def index_intern(relpath):
         listscreens.append((screennu, *val[1:]))
     screens = count_screens()
     hidescreens = screens<=1
-    return template(pages["index"], currentdir=backconvert(relpath), \
+    return dict(currentdir=backconvert(relpath), \
                     currentfile=backconvert(currentfile), \
                     playfiles=pllist, hidescreens=hidescreens, \
                     maxscreens=max(0,screens-1), playingscreens=listscreens)
@@ -260,11 +253,13 @@ def return_static(sfile):
     return static_file(sfile, root=datapath)
 
 @mpvserver.route(path='/index/', method="GET")
+@view('index')
 def redwrong_index():
     redirect("/index")
 
 @mpvserver.route(path='/index', method="GET")
 @mpvserver.route(path='/', method="GET")
+@view('index')
 def index_a():
     ret = index_intern("")
     if ret:
@@ -273,6 +268,7 @@ def index_a():
 
 
 @mpvserver.route(path='/index/<path:path>', method="GET")
+@view('index')
 def index_b(path):
     path = converttopath(path)
     ret = index_intern(path)
