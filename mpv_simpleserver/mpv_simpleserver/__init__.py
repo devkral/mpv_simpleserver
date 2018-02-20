@@ -1,11 +1,10 @@
 #! /usr/bin/env python3
 
 import bottle
-from bottle import route, run, template, request, redirect, abort, debug, view
-from bottle import static_file
+from bottle import request, redirect, abort, view, static_file
 from bottle import Bottle
-import os
 from subprocess import Popen
+import os
 import re
 import time
 import sys
@@ -290,10 +289,3 @@ def stop_b():
 @mpvserver.route(path='/stop/<screen:int>', method="GET")
 def stop(screen):
     stop_mpv(screen)
-
-if __name__ == "__main__":
-    debug(debugmode)
-    if debugmode:
-        mpvserver.run(host='::', port=port)
-    else:
-        mpvserver.run(host='::', port=port, quiet=True)
