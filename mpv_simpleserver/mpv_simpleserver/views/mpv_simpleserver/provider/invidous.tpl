@@ -5,17 +5,18 @@
         method: 'GET',
         mode: "cors",
     });
-    await fetch(req).then(function(response) {console.log(response); return response.json(); })
+    await fetch(req).then(function(response) {return response.json(); })
       .then(function(data) {
-      let masterul = document.getElementById("invidous_results");
-      while (masterul.firstChild) {
-          masterul.removeChild(masterul.firstChild);
+      let master_invidious = document.getElementById("invidous_results");
+      while (master_invidious.firstChild) {
+          master_invidious.removeChild(master_invidious.firstChild);
       }
 
       for(let count=0; count<data.length; count++){
-        let minorli = document.createElement("li")
-        minorli.innerHTML = `<a class="w3-bar-item w3-grey w3-button" onclick='document.getElementById("stream_pathid").value="${data[count].authorUrl}";arguments[0].stopPropagation();'>${data[count].name}</a>`
-        masterul.appendChild(minorli);
+        let minor_invidious = document.createElement("li")
+        minor_invidious.classList.add("w3-ul", "w3-border")
+        minor_invidious.innerHTML = `<a class="" onclick='document.getElementById("stream_pathid").value="https://invidio.us/watch?v=${data[count].videoId}";return false' style='color: #0000FF; word-wrap: break-word;cursor: pointer;'>${data[count].title}</a>`
+        master_invidious.appendChild(minor_invidious);
       }
     })
     return false;
@@ -25,11 +26,9 @@
   <h3 style="margin-left:10px">Invidious:</h3>
   <hr style="margin: 0 0 5px 0"/>
   <form method="GET" onsubmit="return search_invidous(event)">
-    <input name="q" style="margin-left:10px" type="search"><br/>
-    <input style="margin-left:10px" type="submit">
+    <input name="q" style="margin-left:10px" type="search"><input style="margin-left:10px" type="submit" value="Send"></input>
   </form>
-  <div style="height:350px;overflow: auto;">
-    <ul id="invidous_results">
-    </ul>
+  <div style="height:300px; width:100%;overflow-y: auto;">
+    <ul id="invidous_results"></ul>
   </div>
 </div>

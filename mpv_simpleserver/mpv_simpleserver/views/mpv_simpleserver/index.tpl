@@ -116,7 +116,7 @@
       <hr/>
       <div class="w3-row-padding" style="padding-bottom:10px">
         <div class="w3-col s12 l6">
-          <div class="w3-card-4" style="height:400px;overflow: auto">
+          <div class="w3-card-4" style="height:400px;overflow-y: auto;">
             %include('mpv_simpleserver/provider/files.tpl', **locals())
           </div>
         </div>
