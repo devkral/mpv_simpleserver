@@ -70,8 +70,8 @@
       <hr style="margin: 0 0 5px 0"/>
       <div>
       %for screennum, playingfile, hasaudio, isbackground, isloop in playingscreens:
-        <a class="w3-bar-item w3-grey w3-button" onclick='document.getElementById("top-screenselect").value="{{screennum}}"; document.getElementById("content-screenselect").value="{{screennum}}";document.getElementById("stream_pathid").value="{{playingfile}}";arguments[0].stopPropagation();'><b>{{screennum}}</b>: {{playingfile}}
-          <small class="">
+        <a class="w3-bar-item w3-grey w3-button" onclick='document.getElementById("top-screenselect").value="{{screennum}}"; document.getElementById("content-screenselect").value="{{screennum}}";document.getElementById("stream_pathid").value="{{playingfile}}";return false;'><b>{{screennum}}</b>: {{playingfile}}
+          <small>
             %if not hasaudio:
                 mute
             %elif isbackground:
