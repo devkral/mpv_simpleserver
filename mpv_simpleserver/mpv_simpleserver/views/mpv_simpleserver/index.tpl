@@ -60,7 +60,7 @@
           %end
             Screen: <input name="screenid" id="top-screenselect" class="w3-input" onblur="document.getElementById('content-screenselect').value = this.value;" type="number" value="0" max="{{maxscreens}}" min="0" placeholder="<screen>"/>
           </span>
-          <input value="Stop" type="submit" class="w3-red w3-button" formaction="/stop"/>
+          <input value="Stop" type="submit" class="w3-red w3-button" formaction="/stop/"/>
       </form>
     </span>
   </header>
@@ -101,13 +101,13 @@
             <input name="stream_path" id="stream_pathid" type="text" class="w3-input w3-animate-input" placeholder="<Url/File>" autofocus=true value="{{currentfile}}"/>
           </div>
           <div>
-            <input value="Play" class="w3-gray w3-button" type="submit" formaction="/start"/>
+            <input value="Play" class="w3-gray w3-button" type="submit" formaction="/start/"/>
             %if len(playingscreens) > 0:
               <span>
             %else:
               <span hidden="hidden">
             %end
-              <input value="Stop" type="submit" class="w3-gray w3-button" formaction="/stop"/>
+              <input value="Stop" type="submit" class="w3-gray w3-button" formaction="/stop/"/>
             </span>
             <span style="margin-left: 5px">
               <span class="mpvformcontrol w3-tooltip">

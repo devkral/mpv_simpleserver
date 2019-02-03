@@ -14,7 +14,7 @@
 
       for(let count=0; count<data.length; count++){
         let minor_invidious = document.createElement("li")
-        minor_invidious.innerHTML = `<a class="" onclick='document.getElementById("stream_pathid").value="https://invidio.us/watch?v=${data[count].videoId}";return false' style='color: #0000FF; word-wrap: break-word;cursor: pointer;'>${data[count].title}</a>`
+        minor_invidious.innerHTML = `<a href="#" onclick='document.getElementById("stream_pathid").value="https://invidio.us/watch?v=${data[count].videoId}";return false' style='color: #0000FF; word-wrap: break-word;cursor: pointer;text-decoration: none;'>${data[count].title}</a>`
         master_invidious.appendChild(minor_invidious);
       }
     })

@@ -1,10 +1,9 @@
 #! /usr/bin/env python3
 
 
-from subprocess import Popen
+from subprocess import Popen, TimeoutExpired
 import os
 import re
-import time
 import sys
 import json
 
@@ -23,7 +22,7 @@ debugmode = "DEBUG" in os.environ
 maxscreens = -1
 # time to wait before redirecting after start/stop.
 # elsewise old information are shown
-waittime = 1
+waittime = 6
 
 parameters = []
 
@@ -230,7 +229,7 @@ def start_mpv(screen):
     if request.forms.get('loop', False):
         calledargs += ["--loop=inf"]
         isloop = True
-    calledargs += [get_ytdlquality(onlyvideo=not hasaudio)]
+    calledargs.append(get_ytdlquality(onlyvideo=not hasaudio))
     if calledargs[-1] is None:
         abort(400, "cannot play video (novideo and audio plays)")
         return
@@ -242,11 +241,15 @@ def start_mpv(screen):
         isbackground,
         isloop
     ]
-    time.sleep(waittime)
-    if cur_mpvprocess[screen][0].poll() is not None:
+    try:
+        # raise timeout if source still runs (=success)
+        if isfile:
+            cur_mpvprocess[screen][0].wait(1)
+        else:
+            cur_mpvprocess[screen][0].wait(waittime)
         abort(500, "playing file failed")
-    else:
-        redirect("/index")
+    except TimeoutExpired:
+        redirect("/index/")
 
 
 def stop_mpv(screen):
@@ -255,12 +258,12 @@ def stop_mpv(screen):
         return
     if cur_mpvprocess.get(screen) and cur_mpvprocess.get(screen)[0].poll() is None:  # noqa
         cur_mpvprocess.get(screen)[0].terminate()
+        cur_mpvprocess.get(screen)[0].wait(waittime)
     # else:
         # redirect("/") #Error: screen not exist")
         # abort(400,"Error: screen not exist")
         # return
-    time.sleep(waittime)
-    redirect("/index")
+    redirect("/index/")
 
 
 mpvserver = Bottle()
@@ -276,13 +279,8 @@ def return_static(sfile):
     return static_file(sfile, root=datapath)
 
 
-@mpvserver.route(path='/index/', method="GET")
-def redwrong_index():
-    redirect("/index")
-
-
 @mpvserver.route(path='/', method="GET")
-@mpvserver.route(path='/index', method="GET")
+@mpvserver.route(path='/index/', method="GET")
 @mpvserver.route(path='/index/<path:path>', method="GET")
 @view('mpv_simpleserver/index')
 def index_path(path=""):
@@ -294,6 +292,7 @@ def index_path(path=""):
     abort(404, "directory not found")
 
 
+@mpvserver.route(path='/json/', method="GET")
 @mpvserver.route(path='/json/<path:path>', method="GET")
 def json_path(path=""):
     if path != "":
@@ -304,15 +303,14 @@ def json_path(path=""):
     abort(404, "directory not found")
 
 
-@mpvserver.route(path='/start', method="POST")
-@mpvserver.route(path='/start/<screen:int>', method="POST")
+@mpvserver.route(path='/start/', method="POST")
 def start_path(screen=None):
     if screen is None:
         screen = int(request.forms.get('screenid'))
     start_mpv(screen)
 
 
-@mpvserver.route(path='/stop', method="POST")
+@mpvserver.route(path='/stop/', method="POST")
 @mpvserver.route(path='/stop/<screen:int>', method="GET")
 def stop_path(screen=None):
     if screen is None:

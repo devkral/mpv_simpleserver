@@ -15,9 +15,9 @@
       for(let count=0; count<data.playfiles.length; count++){
         let minor_index = document.createElement("li")
         if (data.playfiles[count][1] == "dir"){
-          minor_index.innerHTML = `<a onclick='return list_dir(event, "${data.playfiles[count][2]}")' style='color: #000000; word-wrap: break-word; cursor: pointer;'>${data.playfiles[count][0]}</a>`
-        } else {
-          minor_index.innerHTML = `<a onclick='document.getElementById("stream_pathid").value="${data.playfiles[count][2]}";return false' style='color: #0000FF; word-wrap: break-word;cursor: pointer;'>${data.playfiles[count][0]}</a>`
+          minor_index.innerHTML = `<a href="/index/${data.playfiles[count][2]}" onclick='return list_dir(event, "${data.playfiles[count][2]}")' style='color: #000000; word-wrap: break-word; cursor: pointer;text-decoration: none;'>${data.playfiles[count][0]}</a>`
+        } else if(data.playfiles[count][1] == "file") {
+          minor_index.innerHTML = `<a href="#" onclick='document.getElementById("stream_pathid").value="${data.playfiles[count][2]}";return false' style='color: #0000FF; word-wrap: break-word;cursor: pointer;text-decoration: none;'>${data.playfiles[count][0]}</a>`
         }
         master_index.appendChild(minor_index);
       }
@@ -34,11 +34,10 @@
     <ul class="w3-ul w3-border" id="index_results">
     %for name, playaction, realfile in playfiles:
       <li>
-      %if playaction == "file":
-        <a href="#" onclick='document.getElementById("stream_pathid").value="{{realfile}}";return false' style="color: #0000FF; word-wrap: break-word;cursor: pointer;">{{name}}</a>
-      %end
       %if playaction == "dir":
-        <a href="/index/{{realfile}}" onclick='return list_dir(event, "{{realfile}}")' style="color: #000000; word-wrap: break-word;cursor: pointer;">{{name}}</a>
+        <a href="/index/{{realfile}}" onclick='return list_dir(event, "{{realfile}}")' style="color: #000000; word-wrap: break-word;cursor: pointer;text-decoration: none;">{{name}}</a>
+      %elif playaction == "file":
+        <a href="#" onclick='document.getElementById("stream_pathid").value="{{realfile}}";return false' style="color: #0000FF; word-wrap: break-word;cursor: pointer;text-decoration: none;">{{name}}</a>
       %end
     </li>
     %end

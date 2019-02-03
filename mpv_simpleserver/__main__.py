@@ -19,4 +19,4 @@ debug(debugmode)
 if debugmode:
     mpvserver.run(host='::', port=port, reloader=True)
 else:
-    mpvserver.run(server="auto", host='::', port=port, quiet=True)
+    mpvserver.run(host='::', port=port, quiet=True)
