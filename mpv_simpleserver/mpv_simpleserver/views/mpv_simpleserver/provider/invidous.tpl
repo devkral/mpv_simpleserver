@@ -27,7 +27,7 @@
   <form method="GET" onsubmit="return search_invidous(event)">
     <input name="q" style="margin-left:10px" type="search"><input style="margin-left:10px" type="submit" value="Send"></input>
   </form>
-  <div style="height:100%; width:100%;overflow-y: auto;">
+  <div style="height:500px; width:100%;overflow-y: auto;">
     <ul id="invidous_results" class="w3-ul w3-border"></ul>
   </div>
 </div>

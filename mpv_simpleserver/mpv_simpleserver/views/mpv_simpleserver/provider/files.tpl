@@ -2,7 +2,7 @@
   <h3 style="margin-left:10px">Files: {{currentdir}}</h3>
   <hr style="margin: 0 0 5px 0"/>
 
-  <div style="height:100%; width:100%;overflow-y: auto;">
+  <div style="height:500px; width:100%;overflow-y: auto;">
     <ul class="w3-ul w3-border">
     %for playfile, playaction, realfile in playfiles:
       <li>
