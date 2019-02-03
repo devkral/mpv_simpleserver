@@ -14,7 +14,6 @@
 
       for(let count=0; count<data.length; count++){
         let minor_invidious = document.createElement("li")
-        minor_invidious.classList.add("w3-ul", "w3-border")
         minor_invidious.innerHTML = `<a class="" onclick='document.getElementById("stream_pathid").value="https://invidio.us/watch?v=${data[count].videoId}";return false' style='color: #0000FF; word-wrap: break-word;cursor: pointer;'>${data[count].title}</a>`
         master_invidious.appendChild(minor_invidious);
       }
@@ -28,7 +27,7 @@
   <form method="GET" onsubmit="return search_invidous(event)">
     <input name="q" style="margin-left:10px" type="search"><input style="margin-left:10px" type="submit" value="Send"></input>
   </form>
-  <div style="height:300px; width:100%;overflow-y: auto;">
-    <ul id="invidous_results"></ul>
+  <div style="height:100%; width:100%;overflow-y: auto;">
+    <ul id="invidous_results" class="w3-ul w3-border"></ul>
   </div>
 </div>
