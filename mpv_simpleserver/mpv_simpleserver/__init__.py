@@ -1,13 +1,16 @@
 #! /usr/bin/env python3
 
-import bottle
-from bottle import request, redirect, abort, view, static_file
-from bottle import Bottle
+
 from subprocess import Popen
 import os
 import re
 import time
 import sys
+import json
+
+import bottle
+from bottle import request, redirect, abort, view, static_file
+from bottle import Bottle
 
 pathtompv = "/usr/bin/mpv"
 allowed_protocols = ["file", "http", "https", "ftp", "smb", "mf"]
@@ -124,7 +127,7 @@ def convert_path(path):
     return path, False
 
 
-def index_intern(relpath):
+def get_state(relpath=""):
     relpath = relpath.lstrip("./\\")
     path = os.path.join(playdir, relpath)
     pllist = []
@@ -170,7 +173,8 @@ def index_intern(relpath):
     return dict(
         currentdir=backconvert(relpath),
         currentfile=backconvert(currentfile),
-        playfiles=pllist, hidescreens=hidescreens,
+        playfiles=pllist,
+        hidescreens=hidescreens,
         maxscreens=max(0, screens-1),
         playingscreens=listscreens
     )
@@ -273,46 +277,44 @@ def return_static(sfile):
 
 
 @mpvserver.route(path='/index/', method="GET")
-@view('mpv_simpleserver/index')
 def redwrong_index():
     redirect("/index")
 
 
-@mpvserver.route(path='/index', method="GET")
 @mpvserver.route(path='/', method="GET")
-@view('mpv_simpleserver/index')
-def index_a():
-    ret = index_intern("")
-    if ret:
-        return ret
-    abort(500, "Magic smoke?")
-
-
+@mpvserver.route(path='/index', method="GET")
 @mpvserver.route(path='/index/<path:path>', method="GET")
 @view('mpv_simpleserver/index')
-def index_b(path):
-    path = converttopath(path)
-    ret = index_intern(path)
+def index_path(path=""):
+    if path:
+        path = converttopath(path)
+    ret = get_state(path)
     if ret:
         return ret
     abort(404, "directory not found")
 
 
-@mpvserver.route(path='/start/<screen:int>', method="POST")
-def start_a(screen):
-    start_mpv(screen)
+@mpvserver.route(path='/json/<path:path>', method="GET")
+def json_path(path=""):
+    if path != "":
+        path = converttopath(path)
+    ret = get_state(path)
+    if ret:
+        return json.dumps(ret)
+    abort(404, "directory not found")
 
 
 @mpvserver.route(path='/start', method="POST")
-def start_b():
-    start_mpv(int(request.forms.get('screenid')))
+@mpvserver.route(path='/start/<screen:int>', method="POST")
+def start_path(screen=None):
+    if screen is None:
+        screen = int(request.forms.get('screenid'))
+    start_mpv(screen)
 
 
 @mpvserver.route(path='/stop', method="POST")
-def stop_b():
-    stop_mpv(int(request.forms.get('screenid')))
-
-
 @mpvserver.route(path='/stop/<screen:int>', method="GET")
-def stop(screen):
+def stop_path(screen=None):
+    if screen is None:
+        screen = int(request.forms.get('screenid'))
     stop_mpv(screen)

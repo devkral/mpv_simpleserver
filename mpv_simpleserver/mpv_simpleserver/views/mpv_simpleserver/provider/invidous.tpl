@@ -22,12 +22,14 @@
   };
 </script>
 <div>
-  <h3 style="margin-left:10px">Invidious:</h3>
-  <hr style="margin: 0 0 5px 0"/>
-  <form method="GET" onsubmit="return search_invidous(event)">
-    <input name="q" style="margin-left:10px" type="search"><input style="margin-left:10px" type="submit" value="Send"></input>
-  </form>
-  <div style="height:500px; width:100%;overflow-y: auto;">
+  <div style="height:90px">
+    <h3 style="margin-left:10px">Invidious:</h3>
+    <hr style="margin: 0 0 5px 0"/>
+    <form method="GET" onsubmit="return search_invidous(event)">
+      <input name="q" style="margin-left:10px" type="search"><input style="margin-left:10px" type="submit" value="Send"></input>
+    </form>
+  </div>
+  <div style="height:510px; width:100%;overflow-y: auto;">
     <ul id="invidous_results" class="w3-ul w3-border"></ul>
   </div>
 </div>

@@ -1,10 +1,11 @@
-import sys, os
+import sys
+import os
 from bottle import debug
 import mpv_simpleserver
 from mpv_simpleserver import mpvserver, debugmode, port
 
 
-if len(sys.argv)>1:
+if len(sys.argv) > 1:
     if os.path.isdir(sys.argv[1]):
         mpv_simpleserver.playdir = sys.argv[1]
     else:
@@ -18,4 +19,4 @@ debug(debugmode)
 if debugmode:
     mpvserver.run(host='::', port=port, reloader=True)
 else:
-    mpvserver.run(host='::', port=port, quiet=True)
+    mpvserver.run(server="auto", host='::', port=port, quiet=True)

@@ -46,17 +46,21 @@
 </head>
 <body class="w3-blue">
   <header class="w3-top w3-bar w3-black">
-    <h1 class="w3-center">Play Music</h1>
+    <h2 class="w3-center">Play Music</h2>
     <span style="position:absolute;top:10px;left:20px">
+      %if len(playingscreens) > 0:
       <form class="" method="post">
+      %else:
+        <form class="" method="post" hidden="hidden">
+      %end
           %if hidescreens == True:
-          <span hidden>
+          <span hidden="hidden">
+          %else:
+          <span>
           %end
             Screen: <input name="screenid" id="top-screenselect" class="w3-input" onblur="document.getElementById('content-screenselect').value = this.value;" type="number" value="0" max="{{maxscreens}}" min="0" placeholder="<screen>"/>
-          %if hidescreens:
           </span>
-          %end
-          <input value="Stop" type="submit" class="w3-gray w3-button" formaction="/stop"/>
+          <input value="Stop" type="submit" class="w3-red w3-button" formaction="/stop"/>
       </form>
     </span>
   </header>
@@ -64,6 +68,7 @@
     <aside class="w3-bar-block w3-card-4 w3-white w3-mobile resp-sidebar">
       <h2 class="w3-bar-item" style="margin-left: 10px;">Playing:</h2>
       <hr style="margin: 0 0 5px 0"/>
+      <div>
       %for screennum, playingfile, hasaudio, isbackground, isloop in playingscreens:
         <a class="w3-bar-item w3-grey w3-button" onclick='document.getElementById("top-screenselect").value="{{screennum}}"; document.getElementById("content-screenselect").value="{{screennum}}";document.getElementById("stream_pathid").value="{{playingfile}}";arguments[0].stopPropagation();'><b>{{screennum}}</b>: {{playingfile}}
           <small class="">
@@ -78,6 +83,7 @@
           </small>
         </a>
       %end
+      </div>
     </aside>
     <main class="w3-white resp-main">
       <h1 style="margin-left: 30px">Enter Music to play:</h1>
@@ -85,20 +91,24 @@
       <div>
         <form class="" method="post">
           %if hidescreens == True:
-          <div hidden>
+          <div hidden="hidden">
+          %else:
+          <div>
           %end
             Screen: <input name="screenid" id="content-screenselect" class="w3-button" onblur="document.getElementById('top-screenselect').value = this.value;" type="number" value="0" max="{{maxscreens}}" min="0" placeholder="<screen>"/>
-          %if hidescreens:
           </div>
-          %end
           <div>
+            <input name="stream_path" id="stream_pathid" type="text" class="w3-input w3-animate-input" placeholder="<Url/File>" autofocus=true value="{{currentfile}}"/>
           </div>
-          <input name="stream_path" id="stream_pathid" type="text" class="w3-input w3-animate-input" placeholder="<Url/File>" autofocus=true value="{{currentfile}}"/>
           <div>
             <input value="Play" class="w3-gray w3-button" type="submit" formaction="/start"/>
             %if len(playingscreens) > 0:
-              <input value="Stop" type="submit" class="w3-gray w3-button" formaction="/stop"/>
+              <span>
+            %else:
+              <span hidden="hidden">
             %end
+              <input value="Stop" type="submit" class="w3-gray w3-button" formaction="/stop"/>
+            </span>
             <span style="margin-left: 5px">
               <span class="mpvformcontrol w3-tooltip">
                 Background <span class="w3-text w3-white w3-card-4" style="padding:3px;position:absolute;left:0;bottom:30px" ><em>background plays quieter</em></span> <input name="background" class="w3-check" type="checkbox"/>
