@@ -6,7 +6,7 @@ import os
 import re
 import sys
 import json
-from urllib.parse import quote_plus
+from urllib.parse import quote
 
 import bottle
 from bottle import request, redirect, abort, view, static_file
@@ -142,13 +142,13 @@ def get_state(relpath=""):
                 pllist.append((
                     "..",
                     "dir",
-                    quote_plus(backconvert(relpath), safe="/")
+                    quote(backconvert(relpath))
                 ))
             else:
                 pllist.append((
                     "..",
                     "dir",
-                    quote_plus(backconvert(os.path.dirname(relpath)), safe="/")
+                    quote(backconvert(os.path.dirname(relpath)))
                 ))
         for _file in os.listdir(path):
             _fullfile = os.path.join(path, _file)
@@ -156,18 +156,16 @@ def get_state(relpath=""):
                 pllist.append((
                     _file,
                     "dir",
-                    quote_plus(
-                        backconvert(os.path.relpath(_fullfile, playdir)),
-                        safe="/"
+                    quote(
+                        backconvert(os.path.relpath(_fullfile, playdir))
                     )
                 ))
             elif os.path.isfile(_fullfile):
                 pllist.append((
                     _file,
                     "file",
-                    quote_plus(
-                        backconvert(os.path.relpath(_fullfile, playdir)),
-                        safe="/"
+                    quote(
+                        backconvert(os.path.relpath(_fullfile, playdir))
                     )
                 ))
     else:
