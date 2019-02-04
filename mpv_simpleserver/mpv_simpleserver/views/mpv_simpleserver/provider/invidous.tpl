@@ -1,23 +1,23 @@
 <script>
   async function search_invidous(event){
     event.preventDefault();
-    req = new Request(`https://www.invidio.us/api/v1/search?q=${event.target.q.value}`, {
-        method: 'GET',
-        mode: "cors",
-    });
-    await fetch(req).then(function(response) {return response.json(); })
-      .then(function(data) {
-      let master_invidious = document.getElementById("invidous_results");
-      while (master_invidious.firstChild) {
-          master_invidious.removeChild(master_invidious.firstChild);
-      }
-
-      for(let count=0; count<data.length; count++){
-        let minor_invidious = document.createElement("li")
-        minor_invidious.innerHTML = `<a href="#" onclick='document.getElementById("stream_pathid").value="https://invidio.us/watch?v=${data[count].videoId}";return false' style='color: #0000FF; word-wrap: break-word;cursor: pointer;text-decoration: none;'>${data[count].title}</a>`
-        master_invidious.appendChild(minor_invidious);
-      }
-    })
+    let master_invidious = document.getElementById("invidous_results");
+    while (master_invidious.firstChild) {
+        master_invidious.removeChild(master_invidious.firstChild);
+    }
+    for(let page=1; page<3; ++page){
+      req = new Request(`https://www.invidio.us/api/v1/search?q=${event.target.q.value}&page=${page}`, {
+          method: 'GET',
+          mode: "cors",
+      });
+      await fetch(req).then(function(response) {return response.json(); }).then(function(data) {
+        for(let count=0; count<data.length; count++){
+          let minor_invidious = document.createElement("li")
+          minor_invidious.innerHTML = `<a href="#" onclick='document.getElementById("stream_pathid").value="https://invidio.us/watch?v=${data[count].videoId}";return false' style='color: #0000FF; word-wrap: break-word;cursor: pointer;text-decoration: none;'>${data[count].title}<small style="margin-left:10px" class="w3-text-grey">${Math.trunc(data[count].lengthSeconds/60)}:${data[count].lengthSeconds%60}</small></a>`
+          master_invidious.appendChild(minor_invidious);
+        }
+      })
+    }
     return false;
   };
 </script>
