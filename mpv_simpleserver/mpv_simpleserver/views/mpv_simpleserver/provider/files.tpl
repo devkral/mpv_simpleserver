@@ -8,9 +8,11 @@
     await fetch(req).then(function(response) {return response.json(); })
       .then(function(data) {
       let master_index = document.getElementById("index_results");
+      let files_currentdir = document.getElementById("files_currentdir");
       while (master_index.firstChild) {
           master_index.removeChild(master_index.firstChild);
       }
+      files_currentdir.innerText = "/"+data.currentdir;
 
       for(let count=0; count<data.playfiles.length; count++){
         let minor_index = document.createElement("li")
@@ -27,8 +29,9 @@
 </script>
 <div>
   <div style="height:90px">
-    <h3 style="margin-left:10px">Files: {{currentdir}}</h3>
+    <h3 style="margin-left:10px">Files:</h3>
     <hr style="margin: 0 0 5px 0"/>
+    <span id="files_currentdir" style="margin-left:10px;">/{{currentdir}}</span>
   </div>
   <div style="height:510px; width:100%;overflow-y: auto;">
     <ul class="w3-ul w3-border" id="index_results">
