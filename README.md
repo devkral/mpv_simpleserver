@@ -22,6 +22,7 @@ mpv_simpleserver /home/wanteddirectory
 * PORT: preferred Port (default 8080)
 * NOVIDEO: audio only mode (auto detected elsewise)
 * DEBUG: debug mode
+* FORCE_SCREENS: force x screens if set
 * DISPLAY, WAYLAND_DISPLAY: which display will be used
 
 

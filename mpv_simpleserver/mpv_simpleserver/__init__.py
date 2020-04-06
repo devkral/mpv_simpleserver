@@ -19,6 +19,7 @@ prefaudioquality = os.environ.get("AUDIO", "192")
 prefvideoquality = os.environ.get("VIDEO", "480")
 port = int(os.environ.get("PORT", "8080"))
 novideo = "NOVIDEO" in os.environ
+force_screens = os.environ.get("FORCE_SCREENS")
 debugmode = "DEBUG" in os.environ
 maxscreens = -1
 # time to wait before redirecting after start/stop.
@@ -52,7 +53,16 @@ else:
 
 
 def count_screens():
+    global force_screens
     if not novideo:
+        if force_screens:
+            if (
+                not isinstance(force_screens, int) and
+                not force_screens.isdecimal()
+            ):
+                print("invalid FORCE_SCREENS variable")
+                force_screens = 1
+            return max(int(force_screens), 1)
         screens = 0
         if os.uname().sysname == "Linux":
             if os.path.isdir("/sys/class/drm/"):
@@ -79,6 +89,7 @@ def count_screens():
             return screens
     else:
         return 0
+
 
 # print("Screens detected:", count_screens())
 
