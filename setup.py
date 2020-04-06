@@ -49,7 +49,9 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3 :: Only',
-        'Topic :: Office/Business',
+        'Topic :: Internet',
+        'Topic :: Multimedia',
+        'Topic :: Multimedia :: Sound/Audio :: Players'
     ],
     keywords=['mpv', 'helper', 'tool']
 )
