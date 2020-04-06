@@ -23,7 +23,7 @@ setup(
     description='Web server for mpv',
     author='Alexander K.',
     author_email='devkral@web.de',
-    license='MIT',
+    license='BSD-3',
     url='https://github.com/devkral/mpv_simpleserver',
     download_url='https://github.com/devkral/mpv_simpleserver/tarball/v%s' %
                  version,
@@ -37,7 +37,7 @@ setup(
     ],
 
     classifiers=[
-        'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: BSD License',
         'Operating System :: POSIX',
         'Environment :: Console',
         'Development Status :: 5 - Production/Stable',
