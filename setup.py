@@ -38,16 +38,11 @@ setup(
 
     classifiers=[
         'License :: OSI Approved :: BSD License',
-        'Operating System :: POSIX',
         'Environment :: Console',
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Education',
         'Intended Audience :: End Users/Desktop',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3 :: Only',
         'Topic :: Internet',
         'Topic :: Multimedia',
